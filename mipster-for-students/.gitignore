@@ -1,0 +1,16 @@
+build/
+out/
+
+/Makefile
+/emulator.Makefile
+/mipster.target.mk
+emulator.xcodeproj/
+
+userland/**/*.o
+userland/**/a.out
+
+userland/cpu-torture-tests/*.s
+userland/cpu-torture-tests/cputorture-logic
+userland/cpu-torture-tests/cputorture-arith
+userland/cpu-torture-tests/cputorture-branch
+userland/cpu-torture-tests/cputorture-loadstore
