@@ -220,7 +220,19 @@ void LoadUpperImmediateInstruction::Execute() {
 
 void OrImmediateInstruction::Execute() {
   // TODO(students): implement
-  ErrorOut(EXIT_FAILURE, ISAM, "ori not yet implemented");
+//  ErrorOut(EXIT_FAILURE, ISAM, "ori not yet implemented");
+  Disassemble("ori %s,%s,0x%x",
+              Register::Name(InstructionData().rt),
+              Register::Name(InstructionData().rs),
+              ZeroExtendFrom16(InstructionData().immediate));
+  int32_t temp =
+      MachineState().registers.GPR[InstructionData().rs] |
+      ZeroExtendFrom16(InstructionData().immediate);
+  WriteRegister(InstructionData().rt, temp);
+  NextInstruction();
+  DebugRegisters(
+      Register::BitfieldIndexFor(InstructionData().rt) |
+      Register::BitfieldIndexFor(InstructionData().rs));
 }
 
 
@@ -478,7 +490,14 @@ void BreakInstruction::Execute() {
 
 void JumpInstruction::Execute() {
   // TODO(students): implement
-  ErrorOut(EXIT_FAILURE, ISAM, "j not yet implemented");
+//  ErrorOut(EXIT_FAILURE, ISAM, "j not yet implemented");
+  // PC <- PC_GPRLEN..28 || instr_index || 0^2
+  uint32_t new_pc = MachineState().pc & 0xF0000000;
+  new_pc |= InstructionData().address << 2;
+  Disassemble("j %p", reinterpret_cast<void*>(new_pc));
+  MachineState().pc = new_pc;
+  DebugRegisters(Register::BitfieldIndex::ra);
+  ExecuteDelaySlot();
 }
 
 
@@ -1050,7 +1069,32 @@ void SetOnLessThanImmediateUnsignedInstruction::Execute() {
 
 void SetOnLessThanInstruction::Execute() {
   // TODO(students): implement
-  ErrorOut(EXIT_FAILURE, ISAM, "slt not yet implemented");
+//  ErrorOut(EXIT_FAILURE, ISAM, "slt not yet implemented");
+  Disassemble("slt %s,%s,%s",
+              Register::Name(InstructionData().rd),
+              Register::Name(InstructionData().rs),
+              Register::Name(InstructionData().rt));
+/*  int64_t temp =
+      static_cast<int64_t>(MachineState().registers.GPR[InstructionData().rs]) +
+      static_cast<int64_t>(MachineState().registers.GPR[InstructionData().rt]);*/
+
+  int64_t rs_signed = static_cast<int64_t>(
+      MachineState().registers.GPR[InstructionData().rs]
+  );
+  int64_t rt_signed = static_cast<int64_t>(
+      MachineState().registers.GPR[InstructionData().rt]
+  );
+  if(rs_signed < rt_signed) {
+    WriteRegister(InstructionData().rd, 1);
+  } else {
+    WriteRegister(InstructionData().rd, 0);
+  }
+  NextInstruction();
+  DebugRegisters(
+      Register::BitfieldIndexFor(InstructionData().rd) |
+      Register::BitfieldIndexFor(InstructionData().rs) |
+      Register::BitfieldIndexFor(InstructionData().rt));
+
 }
 
 
