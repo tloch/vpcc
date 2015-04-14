@@ -1,0 +1,137 @@
+Message-ID: <552AC952.3000602@cosy.sbg.ac.at>
+Date: Sun, 12 Apr 2015 21:36:50 +0200
+From: Thomas Loch <tloch@cosy.sbg.ac.at>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Icedove/24.8.1
+MIME-Version: 1.0
+To: martin@maigner.net
+CC: Lukas Garstenauer <garstenauerlu@stud.sbg.ac.at>, 
+ Nerma Taletovic <Nerma.Taletovic@stud.sbg.ac.at>
+Subject: Problem mit Assignment 1
+Content-Type: multipart/mixed;
+ boundary="------------060603070908060204070703"
+
+This is a multi-part message in MIME format.
+--------------060603070908060204070703
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Hallo!
+
+Wir haben folgende Probleme beim Bearbeiten von Assignment 1:
+
+Wir haben drei fehlende Instruktionen gefunden (ORI, J, SLT). Sind dies 
+alle Instruktionen die Vervollständigt werden sollen? In der 
+Aufgabenbeschreibung ist dazu nichts angegeben, ausser dass *irgendwas* 
+vervollständigt werden soll.
+
+Wir haben Implementierungen für diese drei Instruktionen geschrieben, 
+von denen wir denken dass sie korrekt sein sollten. (Unsere momentane 
+Lösung befindet sich im Anhang dieser Email.) Die "cputorture"-Tests 
+liefern folgende Ausgaben:
+
++ /home/user/src/mipster-for-students/out/Default/mipster cputorture-arith
+mipster: integer overflow
++ /home/user/src/mipster-for-students/out/Default/mipster cputorture-branch
+mipster: exiting
++ /home/user/src/mipster-for-students/out/Default/mipster 
+cputorture-loadstore
+mipster: address error
++ /home/user/src/mipster-for-students/out/Default/mipster cputorture-logic
+mipster: exiting
+
+
+Sind dies die zu erwartenden Ergebnisse? Wir konnten keine Angaben 
+finden was die Tests machen oder wie sie zu Verwenden sind.
+
+Falls diese Ausgaben (wie wir vermuten) Fehler anzeigen: Gibt es eine 
+Möglichkeit festzustellen in welcher Form die selbstgeschriebenen 
+Instruktionen fehlerhaft, und/oder ob es sich um Fehler in "mipster" 
+selbst handelt? Wir haben beobachtet das die Verwendung vieler 
+Kommandozeilen-Optionen die mit "mipster --help" angegeben werden (sowie 
+der Aufruf ohne Argumente) zu Segfaults führt. Der Aufbau der 
+Kommandozeile von "mipster" ist auch nirgendwo ganzheitlich beschrieben.
+
+Und als persönliche Anmerkung möchte ich noch erwähnen dass ich die 
+Assignments immer noch nicht per Email bekomme! Ich habe von Assignment 
+1 erst am Freitag von meinen Teamkollegen erfahren. Wenn erwartet wird 
+dass ich Arbeiten fristgerecht einreiche, bitte ich darum dass meine 
+korrekte Email-Addresse (tloch@cosy.sbg.ac.at) in den Verteiler 
+aufgenommen wird.
+
+Vielen Dank,
+Thomas Loch
+
+
+
+
+--------------060603070908060204070703
+Content-Type: text/plain; charset=UTF-8;
+ name="793d81d1.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="793d81d1.txt"
+
+void OrImmediateInstruction::Execute() {
+  // TODO(students): implement
+//  ErrorOut(EXIT_FAILURE, ISAM, "ori not yet implemented");
+  Disassemble("ori %s,%s,0x%x",
+              Register::Name(InstructionData().rt),
+              Register::Name(InstructionData().rs),
+              ZeroExtendFrom16(InstructionData().immediate));
+  int32_t temp =
+      MachineState().registers.GPR[InstructionData().rs] |
+      ZeroExtendFrom16(InstructionData().immediate);
+  WriteRegister(InstructionData().rt, temp);
+  NextInstruction();
+  DebugRegisters(
+      Register::BitfieldIndexFor(InstructionData().rt) |
+      Register::BitfieldIndexFor(InstructionData().rs));
+}
+
+
+void JumpInstruction::Execute() {
+  // TODO(students): implement
+//  ErrorOut(EXIT_FAILURE, ISAM, "j not yet implemented");
+  // PC <- PC_GPRLEN..28 || instr_index || 0^2
+  uint32_t new_pc = MachineState().pc & 0xF0000000;
+  new_pc |= InstructionData().address << 2;
+  Disassemble("j %p", reinterpret_cast<void*>(new_pc));
+  MachineState().pc = new_pc;
+  DebugRegisters(Register::BitfieldIndex::ra);
+  ExecuteDelaySlot();
+}
+
+
+
+
+void SetOnLessThanInstruction::Execute() {
+  // TODO(students): implement
+//  ErrorOut(EXIT_FAILURE, ISAM, "slt not yet implemented");
+  Disassemble("slt %s,%s,%s",
+              Register::Name(InstructionData().rd),
+              Register::Name(InstructionData().rs),
+              Register::Name(InstructionData().rt));
+/* reference for handling signed register contents:
+    int64_t temp =
+      static_cast<int64_t>(MachineState().registers.GPR[InstructionData().rs]) +
+      static_cast<int64_t>(MachineState().registers.GPR[InstructionData().rt]);*/
+  int64_t rs_signed = static_cast<int64_t>(
+      MachineState().registers.GPR[InstructionData().rs]
+  ); 
+  int64_t rt_signed = static_cast<int64_t>(
+      MachineState().registers.GPR[InstructionData().rt]   
+  );
+  if(rs_signed < rt_signed) {
+    WriteRegister(InstructionData().rd, 1); 
+  } else {
+    WriteRegister(InstructionData().rd, 0);
+  }
+  NextInstruction();
+  DebugRegisters(
+      Register::BitfieldIndexFor(InstructionData().rd) |
+      Register::BitfieldIndexFor(InstructionData().rs) |
+      Register::BitfieldIndexFor(InstructionData().rt));
+
+}
+
+--------------060603070908060204070703--

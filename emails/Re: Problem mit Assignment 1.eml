@@ -1,0 +1,191 @@
+Return-Path: <martin@maigner.net>
+X-Original-To: tloch@cosy.sbg.ac.at
+Delivered-To: tloch@cosy.sbg.ac.at
+Received: from pitbull.cosy.sbg.ac.at (localhost [127.0.0.1])
+	by SPAMFILTER (Postfix) with ESMTP id 740DE16064
+	for <tloch@cosy.sbg.ac.at>; Mon, 13 Apr 2015 08:26:25 +0200 (CEST)
+X-Spam-Checker-Version: SpamAssassin 3.3.2 (2011-06-06) on puma.cosy.sbg.ac.at
+X-Spam-Level: 
+X-Spam-Status: No, score=0.0 required=5.0 tests=HTML_MESSAGE
+	autolearn=disabled version=3.3.2
+Received: from mail-qk0-f182.google.com (mail-qk0-f182.google.com [209.85.220.182])
+	by puma.cosy.sbg.ac.at (Postfix) with ESMTPS id 104E516060
+	for <tloch@cosy.sbg.ac.at>; Mon, 13 Apr 2015 08:26:17 +0200 (CEST)
+Received: by qku63 with SMTP id 63so163857054qku.3
+        for <tloch@cosy.sbg.ac.at>; Sun, 12 Apr 2015 23:26:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20130820;
+        h=x-gm-message-state:mime-version:in-reply-to:references:date
+         :message-id:subject:from:to:cc:content-type;
+        bh=Fcw1MhArMm157Zy2JwCtnk68lOl6F5LJSJy1XSeyFhA=;
+        b=LTZs1X4iCIarE6RTbc6o4H0cKGn9UfeAVt/rHCqAWKyXupYuC7HUMUfRZLVU/v80Ip
+         6HewL5G7nwOVHXFTZZh000Qdd2/Fp59zPvNcENuuZgH6zIv4+f4hk4ooc4wEkDd6MLuV
+         Lh0AgwxxBJpPdS4uAniBgTOPmGdmPLb3k1fSbLEhH1SW2qd4oj8OdA7mW+1+I2Kg9cMh
+         2ZulImuoegPs+Rv700hQXUB4jJ8t0oyouzxiE4EBlhaohHOyT91aFOBNKMdE5p4KLvmA
+         30QRjwvd2MufXbQrbQq+ebhlYuIjdV8QnWu78TUL7o09+bqijwHYraXYZrAoh0p4UNgK
+         BJYg==
+X-Gm-Message-State: ALoCoQn2emvx6sriuP1A42hGQZEEaUe1g994v06hwaYA9l/iMP270G+gwBG/rANVE39QpUhXAed4
+MIME-Version: 1.0
+X-Received: by 10.140.101.214 with SMTP id u80mr15699085qge.48.1428906375974;
+ Sun, 12 Apr 2015 23:26:15 -0700 (PDT)
+Received: by 10.140.102.68 with HTTP; Sun, 12 Apr 2015 23:26:15 -0700 (PDT)
+X-Originating-IP: [85.127.99.47]
+In-Reply-To: <552AC952.3000602@cosy.sbg.ac.at>
+References: <552AC952.3000602@cosy.sbg.ac.at>
+Date: Mon, 13 Apr 2015 08:26:15 +0200
+Message-ID: <CAJSDHu6=49QB59wPoU05zXp7UpAs9wD992MdwM_vRQDSSBKWKw@mail.gmail.com>
+Subject: Re: Problem mit Assignment 1
+From: Martin Aigner <martin@maigner.net>
+To: Thomas Loch <tloch@cosy.sbg.ac.at>
+Cc: Lukas Garstenauer <garstenauerlu@stud.sbg.ac.at>, 
+	Nerma Taletovic <Nerma.Taletovic@stud.sbg.ac.at>, Christoph Kirsch <ckirsch@gmail.com>
+Content-Type: multipart/alternative; boundary=001a11c16e30f529ec051395303f
+
+--001a11c16e30f529ec051395303f
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Sg. Hr. Loch
+
+Ziel der Uebung ist nicht *irgendwas* zu vervollstaendigen, sondern die
+MIPS32 Instruktionsmenge. (siehe Aufgabenbeschreibung)
+
+Die zu erwartenden Ergebnisse der Torturetest entnehmen Sie bitte den
+Torturetests selbst. Siehe: userland/cpu-torture-tests/cputorture-*.s
+
+Die Aufgaben werden ueber PLUSOnline verteilt. Stellen Sie bitte sicher
+dass Sie Benachrichtigungen von PLUSOnline erhalten
+
+
+mfg
+M.Aigner
+
+2015-04-12 21:36 GMT+02:00 Thomas Loch <tloch@cosy.sbg.ac.at>:
+
+> Hallo!
+>
+> Wir haben folgende Probleme beim Bearbeiten von Assignment 1:
+>
+> Wir haben drei fehlende Instruktionen gefunden (ORI, J, SLT). Sind dies
+> alle Instruktionen die Vervollst=C3=A4ndigt werden sollen? In der
+> Aufgabenbeschreibung ist dazu nichts angegeben, ausser dass *irgendwas*
+> vervollst=C3=A4ndigt werden soll.
+>
+> Wir haben Implementierungen f=C3=BCr diese drei Instruktionen geschrieben=
+, von
+> denen wir denken dass sie korrekt sein sollten. (Unsere momentane L=C3=B6=
+sung
+> befindet sich im Anhang dieser Email.) Die "cputorture"-Tests liefern
+> folgende Ausgaben:
+>
+> + /home/user/src/mipster-for-students/out/Default/mipster cputorture-arit=
+h
+> mipster: integer overflow
+> + /home/user/src/mipster-for-students/out/Default/mipster
+> cputorture-branch
+> mipster: exiting
+> + /home/user/src/mipster-for-students/out/Default/mipster
+> cputorture-loadstore
+> mipster: address error
+> + /home/user/src/mipster-for-students/out/Default/mipster cputorture-logi=
+c
+> mipster: exiting
+>
+>
+> Sind dies die zu erwartenden Ergebnisse? Wir konnten keine Angaben finden
+> was die Tests machen oder wie sie zu Verwenden sind.
+>
+> Falls diese Ausgaben (wie wir vermuten) Fehler anzeigen: Gibt es eine
+> M=C3=B6glichkeit festzustellen in welcher Form die selbstgeschriebenen
+> Instruktionen fehlerhaft, und/oder ob es sich um Fehler in "mipster" selb=
+st
+> handelt? Wir haben beobachtet das die Verwendung vieler
+> Kommandozeilen-Optionen die mit "mipster --help" angegeben werden (sowie
+> der Aufruf ohne Argumente) zu Segfaults f=C3=BChrt. Der Aufbau der Komman=
+dozeile
+> von "mipster" ist auch nirgendwo ganzheitlich beschrieben.
+>
+> Und als pers=C3=B6nliche Anmerkung m=C3=B6chte ich noch erw=C3=A4hnen das=
+s ich die
+> Assignments immer noch nicht per Email bekomme! Ich habe von Assignment 1
+> erst am Freitag von meinen Teamkollegen erfahren. Wenn erwartet wird dass
+> ich Arbeiten fristgerecht einreiche, bitte ich darum dass meine korrekte
+> Email-Addresse (tloch@cosy.sbg.ac.at) in den Verteiler aufgenommen wird.
+>
+> Vielen Dank,
+> Thomas Loch
+>
+>
+>
+>
+
+--001a11c16e30f529ec051395303f
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Sg. Hr. Loch<div><br></div><div>Ziel der Uebung ist nicht =
+*irgendwas* zu vervollstaendigen, sondern die MIPS32 Instruktionsmenge. (si=
+ehe Aufgabenbeschreibung)</div><div><br></div><div>Die zu erwartenden Ergeb=
+nisse der Torturetest entnehmen Sie bitte den Torturetests selbst. Siehe:=
+=C2=A0userland/cpu-torture-tests/cputorture-*.s</div><div><br></div><div>Di=
+e Aufgaben werden ueber PLUSOnline verteilt. Stellen Sie bitte sicher dass =
+Sie Benachrichtigungen von PLUSOnline erhalten</div><div><br></div><div><br=
+></div><div>mfg</div><div>M.Aigner</div></div><div class=3D"gmail_extra"><b=
+r><div class=3D"gmail_quote">2015-04-12 21:36 GMT+02:00 Thomas Loch <span d=
+ir=3D"ltr">&lt;<a href=3D"mailto:tloch@cosy.sbg.ac.at" target=3D"_blank">tl=
+och@cosy.sbg.ac.at</a>&gt;</span>:<br><blockquote class=3D"gmail_quote" sty=
+le=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Hallo!=
+<br>
+<br>
+Wir haben folgende Probleme beim Bearbeiten von Assignment 1:<br>
+<br>
+Wir haben drei fehlende Instruktionen gefunden (ORI, J, SLT). Sind dies all=
+e Instruktionen die Vervollst=C3=A4ndigt werden sollen? In der Aufgabenbesc=
+hreibung ist dazu nichts angegeben, ausser dass *irgendwas* vervollst=C3=A4=
+ndigt werden soll.<br>
+<br>
+Wir haben Implementierungen f=C3=BCr diese drei Instruktionen geschrieben, =
+von denen wir denken dass sie korrekt sein sollten. (Unsere momentane L=C3=
+=B6sung befindet sich im Anhang dieser Email.) Die &quot;cputorture&quot;-T=
+ests liefern folgende Ausgaben:<br>
+<br>
++ /home/user/src/mipster-for-<u></u>students/out/Default/mipster cputorture=
+-arith<br>
+mipster: integer overflow<br>
++ /home/user/src/mipster-for-<u></u>students/out/Default/mipster cputorture=
+-branch<br>
+mipster: exiting<br>
++ /home/user/src/mipster-for-<u></u>students/out/Default/mipster cputorture=
+-loadstore<br>
+mipster: address error<br>
++ /home/user/src/mipster-for-<u></u>students/out/Default/mipster cputorture=
+-logic<br>
+mipster: exiting<br>
+<br>
+<br>
+Sind dies die zu erwartenden Ergebnisse? Wir konnten keine Angaben finden w=
+as die Tests machen oder wie sie zu Verwenden sind.<br>
+<br>
+Falls diese Ausgaben (wie wir vermuten) Fehler anzeigen: Gibt es eine M=C3=
+=B6glichkeit festzustellen in welcher Form die selbstgeschriebenen Instrukt=
+ionen fehlerhaft, und/oder ob es sich um Fehler in &quot;mipster&quot; selb=
+st handelt? Wir haben beobachtet das die Verwendung vieler Kommandozeilen-O=
+ptionen die mit &quot;mipster --help&quot; angegeben werden (sowie der Aufr=
+uf ohne Argumente) zu Segfaults f=C3=BChrt. Der Aufbau der Kommandozeile vo=
+n &quot;mipster&quot; ist auch nirgendwo ganzheitlich beschrieben.<br>
+<br>
+Und als pers=C3=B6nliche Anmerkung m=C3=B6chte ich noch erw=C3=A4hnen dass =
+ich die Assignments immer noch nicht per Email bekomme! Ich habe von Assign=
+ment 1 erst am Freitag von meinen Teamkollegen erfahren. Wenn erwartet wird=
+ dass ich Arbeiten fristgerecht einreiche, bitte ich darum dass meine korre=
+kte Email-Addresse (<a href=3D"mailto:tloch@cosy.sbg.ac.at" target=3D"_blan=
+k">tloch@cosy.sbg.ac.at</a>) in den Verteiler aufgenommen wird.<br>
+<br>
+Vielen Dank,<br>
+Thomas Loch<br>
+<br>
+<br>
+<br>
+</blockquote></div><br></div>
+
+--001a11c16e30f529ec051395303f--
