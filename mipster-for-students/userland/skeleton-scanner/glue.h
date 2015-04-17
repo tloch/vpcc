@@ -11,5 +11,10 @@ extern int *malloc(int size);
 
 extern int getchar();
 
+extern int putchar(int c);
+extern int puts(char *s);
+
+extern int printf(char *fmt, ...);
+
 
 #endif
