@@ -128,38 +128,6 @@ int getSymbol() {
 
 		return identifierOrKeyword();
 
-// BEGIN ONLY FOR DEBUGGING
-	} else if (character == 34) { // '"' => 34
-		// found string constant
-		identifier = malloc(maxIdentifierLength * 4);
-
-		identifierCursor = identifier;
-		identifierLength = 1;
-
-		// consume opening quote
-		character = getchar();
-
-		while ( (character == 34) - 1 ) {
-
-			if (identifierLength >= maxIdentifierLength)
-				exit(-1); // identifier too long
-
-			*identifierCursor = character;
-			identifierCursor = identifierCursor + 1;
-			identifierLength = identifierLength + 1;
-
-			character = getchar();
-			if(character == -1) exit(-2);
-		}
-
-		// consume closing quote
-		character = getchar();
-
-		*identifierCursor = 0; // null terminated string
-
-		return IDENTIFIER;
-// END ONLY FOR DEBUGGING
-
 	} else if (isCharacterDigit()) {
 		// found integer constant
 		integer = 0;
