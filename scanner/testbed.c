@@ -9,14 +9,15 @@ static char *get_token_name(int sym);
 static char *intstr_to_charstr(int *is);
 
 int main() {
-	int sym = 1;
+	int token = 1;
 
 	init_scanner();
-	while(sym != -1) {
-		sym = getSymbol();
-		printf("Returned symbol: %d (%s)\n", sym, get_token_name(sym));
-		if(sym == IDENTIFIER)	printf("\t'%s'\n", intstr_to_charstr(identifier));
-		if(sym == INTEGER) 		printf("\t%d\n", integer);
+
+	while(token != -1) {
+		token = getSymbol();
+		printf("Token: %s (%d)\n", get_token_name(token), token);
+		if(token == IDENTIFIER)	printf("\t'%s'\n", intstr_to_charstr(identifier));
+		if(token == INTEGER) 		printf("\t%d\n", integer);
 	}
 
 	return EXIT_SUCCESS;
