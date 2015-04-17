@@ -12,6 +12,7 @@
 
 
 const uint32_t kMipsSyscallExit     = 4001;
+const uint32_t kMipsSyscallRead     = 4003;
 const uint32_t kMipsSyscallWrite    = 4004;
 const uint32_t kMipsSyscallIOctl    = 4054;
 
@@ -57,6 +58,7 @@ class OS {
   // Syscalls:
   //   Separated out in os/os_syscalls.cc
   void SyscallExit();
+  void SyscallRead();
   void SyscallWrite();
   void SyscallIoctl();
   void SyscallDumpElf();

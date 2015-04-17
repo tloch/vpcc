@@ -133,6 +133,9 @@ void OS::Syscall() {
     case kMipsSyscallExit: // syscall ids according to MIPS ABI
       SyscallExit();
       break;
+    case kMipsSyscallRead:
+      SyscallRead();
+      break;
     case kMipsSyscallWrite:
       SyscallWrite();
       break;

@@ -64,6 +64,24 @@ void OS::SyscallExit() {
 }
 
 
+void OS::SyscallRead() {
+  Mips32Machine& m = Mips32Machine::Get();
+  int32_t fd = m.MachineState().registers.a0;
+  uint32_t address = static_cast<uint32_t>(m.MachineState().registers.a1);
+  int32_t bytes = m.MachineState().registers.a2;
+  DebugSyscall("read %d %p %d",
+               fd,
+               reinterpret_cast<void*>(address),
+               bytes);
+  char* buffer =  new char[bytes+1];
+  //read(fd, buffer, bytes);
+  fread(buffer, bytes, 1, stdin);
+  buffer[bytes] = 0;
+  printf("\e[31m" "%s" "\e[0m", buffer); // read stuff is printed in red
+  m.MachineState().physical_memory->WriteBuffer(address, buffer, bytes);
+  fflush(stdout);
+}
+
 void OS::SyscallWrite() {
   Mips32Machine& m = Mips32Machine::Get();
   int32_t fd = m.MachineState().registers.a0;
@@ -76,7 +94,8 @@ void OS::SyscallWrite() {
   char* buffer =  new char[bytes+1];
   m.MachineState().physical_memory->ReadBuffer(address, buffer, bytes);
   buffer[bytes] = 0;
-  printf("%s", buffer);
+  printf("\e[32m" "%s" "\e[0m" , buffer); // written stuff is printed in green
+  //printf("%s", buffer);
   fflush(stdout);
 }
 
