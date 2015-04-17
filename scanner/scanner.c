@@ -441,6 +441,6 @@ int isCharacterLetterOrDigitOrUnderscore() {
 
 
 // help me read the output!
-int endoffile() {return 0;}
+int endoffile;
 
 
