@@ -10,7 +10,7 @@ clean:
 	-rm scanner
 
 test: scanner
-	./scanner
+	./scanner < scanner.c
 
 scanner: scanner.o testbed.o
 	$(CC) -o scanner scanner.o testbed.o
