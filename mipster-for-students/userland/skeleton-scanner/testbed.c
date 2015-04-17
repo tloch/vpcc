@@ -17,7 +17,7 @@ int main() {
 
 	while(token != -1) {
 		token = getSymbol();
-		//printf("Token: %s (%d)\n", get_token_name(token), token);
+		printf("Token: %s (%d)\n", get_token_name(token), token);
 		//if(token == IDENTIFIER)	printf("\t'%s'\n", intstr_to_charstr(identifier));
 		//if(token == INTEGER) 		printf("\t%d\n", integer);
 	}
