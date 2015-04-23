@@ -1,9 +1,9 @@
 build/
 out/
 
-/Makefile
-/emulator.Makefile
-/mipster.target.mk
+#/Makefile
+#/emulator.Makefile
+#/mipster.target.mk
 emulator.xcodeproj/
 
 userland/**/*.o
