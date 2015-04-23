@@ -1,5 +1,6 @@
 .PHONY: default all clean test
-default: all
+default: test
+#default: all
 
 all: scanner
 
