@@ -1,23 +1,29 @@
 .PHONY: default all clean test
-default: test
-#default: all
+#default: test
+default: all
 
-all: scanner
+all: parser
 
 CC=gcc
 
 clean:
 	-rm *.o
-	-rm scanner
+	-rm parser
 
-test: scanner
-	./scanner < scanner.c
+test: parser
+	./parser < parser.c
 
-scanner: scanner.o testbed.o
-	$(CC) -o scanner scanner.o testbed.o
+parser: scanner.o parser.o testbed.o
+	$(CC) -o scanner scanner.o parser.o testbed.o
 
-scanner.o: scanner.c
+scanner.o: scanner.c glue.h
 	$(CC) -o scanner.o -c scanner.c
+
+parser.o: parser.c glue.h
+	$(CC) -o parser.o -c parser.c
+
+glue.o: glue-linux.c glue.h
+	$(CC) -o glue.o -c glue-linux.c
 
 testbed.o: testbed.c
 	$(CC) -o testbed.o -c testbed.c
