@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "scanner.h"
+#include "parser.h"
 
 static char *get_token_name(int sym);
 static char *intstr_to_charstr(int *is);
@@ -12,13 +13,8 @@ int main() {
 	int token = 1;
 
 	init_scanner();
-
-	while(token != -1) {
-		token = getSymbol();
-		printf("Token: %s (%d)\n", get_token_name(token), token);
-		if(token == IDENTIFIER)	printf("\t'%s'\n", intstr_to_charstr(identifier));
-		if(token == INTEGER) 		printf("\t%d\n", integer);
-	}
+	init_parser();
+	parser_main();
 
 	return EXIT_SUCCESS;
 }

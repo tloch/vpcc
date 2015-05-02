@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 int character; // most recently read character
-int symbol; // most recently recognized symbol
+//int symbol; // most recently recognized symbol
 
 // tokens
 
@@ -103,7 +103,7 @@ int getSymbol() {
 
 	if (findNextCharacter() == -1)
 		return -1;
-//printf("c: %c (%d)\n", character, character);
+printf("c: %c (%d)\n", character, character);
 
 	if (isCharacterLetter()) {
 		// found identifier or keyword
