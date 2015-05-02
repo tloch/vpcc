@@ -4,7 +4,7 @@ default: all
 
 all: parser
 
-CC=gcc
+CC=gcc -m32
 
 clean:
 	-rm *.o

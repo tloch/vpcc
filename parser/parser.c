@@ -32,14 +32,24 @@ cstar = { variable ";" | procedure } .
 */
 
 #include "glue.h"
+#include "scanner.h"
 
+
+// prototype declarations
 void term();
 void factor();
 
 void fixup(int codeAddress);
 void fixlink(int codeAddress);
 
+// weird globals that are used but never defined
+int CAST;
+int FACTOR;
+int CALL;
+int PROCEDURE;
 
+
+// constants for register names
 int LINK; // link register
 int SP;   // stack pointer
 int FP;   // frame pointer
@@ -58,15 +68,38 @@ int allocatedGlobalVariables;
 // opcodes
 int ADD;
 int SUB;
+int MUL;
+int DIV;
+int ADDI;
+int SUBI;
+
+int LDW;
+
+int HLT;
+
+int BSR;
+int BR;
+int RET;
+
+int PSH;
+int POP;
 // ...
 
+
+// global variables
 int* symbolTable;
+
+int symbol;
 
 int* code;
 int codeLength;
 int maxCodeLength;
 
 int returnBranches;
+
+int init_parser() {
+	// nothing to do here yet
+}
 
 
 void emitExit() {
@@ -98,7 +131,8 @@ void emitExit() {
 }
 
 
-int main() {
+//int main() {  this causes a name collision when hosted on linux...
+int parser_main() {
     // pick some maximum identifier length, e.g. 42 characters
     maxIdentifierLength = 42;
 
@@ -230,6 +264,7 @@ Here is the above recursive-descent parser decorated into a single-pass compiler
 */
 
 int expression() {
+	int symbol;
     // assert: n = allocatedRegisters
 
     // have we parsed a minus sign?
@@ -304,6 +339,7 @@ void term() {
 }
 
 void cast() {
+	int symbol;
     if (symbol == LEFTPARENTHESIS) {
         getSymbol();
 
@@ -313,6 +349,7 @@ void cast() {
             if (symbol == ASTERISK)
                 getSymbol();
         } else
+            //syntaxError(CAST); // int expected!
             syntaxError(CAST); // int expected!
 
         if (symbol == RIGHTPARENTHESIS)
@@ -323,6 +360,7 @@ void cast() {
 }
 
 void factor() {
+	int symbol;
     // assert: n = allocatedRegisters
 
     // have we parsed an asterisk sign?
@@ -404,6 +442,7 @@ While statements are compiled as follows. Conditional statements are analogous a
 */
 
 void whileStatement() {
+	int symbol;
     // assert: allocatedRegisters == 0
 
     // both must be local variables to work for nested while statements
@@ -483,6 +522,7 @@ Procedure calls are (in principle) done as follows. Note that (in reality) the p
 */
 
 void call() {
+	int procedureAddress;
     // assert: n = allocatedRegisters
 
     // both must be local variables to work for nested expressions
@@ -782,3 +822,49 @@ void returnStatement() {
 
     // assert: allocatedRegisters == 0
 }
+
+
+
+/* *****************************************************************************************
+
+missing stuff
+*/
+
+int cstar() {
+	// parser fragment...
+	// cstar = { variable ";" | procedure } .
+
+}
+int declaration() {
+}
+int declarationError() {
+}
+int emit(int op, int a, int b, int c) {
+}
+int emitCode(int op, int a, int b, int c) {
+}
+int getOpcodeFromCode() {
+}
+int getParameterCFromCode() {
+}
+int isSymbolAsteriskOrSlash() {
+	if(symbol == ASTERISK) return 1;
+	//if(symbol == SLASH) return 1;
+	return 0;
+}
+int isSymbolPlusOrMinus() {
+	if(symbol == PLUS) return 1;
+	if(symbol == MINUS) return 1;
+	return 0;
+}
+int mitCode() {
+}
+int setParameterCInCode() {
+}
+int statement() {
+}
+int syntaxError(int x) {
+}
+int writeBinary() {
+}
+

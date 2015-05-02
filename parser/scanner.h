@@ -45,6 +45,12 @@ extern int COMMA;
 //extern int ;
 //extern int ;
 
+#define LEFTPARENTHESIS		LPARENS
+#define RIGHTPARENTHESIS	RPARENS
+
+#define LEFTBRACES		LBRACE
+#define RIGHTBRACES		RBRACE
+
 // FIXME: add new tokens here!
 
 

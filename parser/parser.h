@@ -3,6 +3,7 @@
 
 int init_parser();
 
+int parser_main();
 
 
 //extern int ;
