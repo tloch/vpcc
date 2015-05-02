@@ -1,35 +1,35 @@
-// 
-// 
-// The following variable declarations, initialization code, and code generation
-// facilities should be completed to a full C* compiler in an assignment. Instructions
-// are encoded in 32-bit integers. Code is written to standard output in binary format.
-// 
-// 
-// -----------------------------
-// 
-// Here is the complete C* syntax in EBNF form.
-// 
-// type = "int" [ "*" ] .
-// 
-// expression = simpleExpression [ ( "==" | "!=" | "<" | ">" | "<=" | ">=" ) simpleExpression ] .
-// simpleExpression = [ "-" ] term { ( "+" | "-" ) term } .
-// term = factor { ( "*" | "/" | "%" ) factor } .
-// cast = "(" type ")" .
-// factor = cast [ "*" ]  ( identifier | integer | "(" expression ")" | call ) .
-// 
-// assignment = [ "*" ] identifier "=" expression .
-// while = "while" "(" expression ")" ( statement | "{" { statement } "}" ) .
-// if = "if" "(" expression ")" ( statement | "{" { statement } "}" ) [ "else" ( statement | "{" { statement } "}" ) ] .
-// call = identifier "(" [ expression { "," expression } ] ")" .
-// return = "return" [ expression ] .
-// statement = assignment ";" | while | if | call ";" | return ";" .
-// 
-// variable = type identifier .
-// procedure = ( "void" | type ) identifier "(" [ variable { "," variable } ] ")" ( ";" | "{" { variable ";" } { statement } "}" ) .
-// 
-// cstar = { variable ";" | procedure } .
-// 
-// 
+/*
+
+The following variable declarations, initialization code, and code generation
+facilities should be completed to a full C* compiler in an assignment. Instructions
+are encoded in 32-bit integers. Code is written to standard output in binary format.
+
+
+-----------------------------
+
+Here is the complete C* syntax in EBNF form.
+
+type = "int" [ "*" ] .
+
+expression = simpleExpression [ ( "==" | "!=" | "<" | ">" | "<=" | ">=" ) simpleExpression ] .
+simpleExpression = [ "-" ] term { ( "+" | "-" ) term } .
+term = factor { ( "*" | "/" | "%" ) factor } .
+cast = "(" type ")" .
+factor = cast [ "*" ]  ( identifier | integer | "(" expression ")" | call ) .
+
+assignment = [ "*" ] identifier "=" expression .
+while = "while" "(" expression ")" ( statement | "{" { statement } "}" ) .
+if = "if" "(" expression ")" ( statement | "{" { statement } "}" ) [ "else" ( statement | "{" { statement } "}" ) ] .
+call = identifier "(" [ expression { "," expression } ] ")" .
+return = "return" [ expression ] .
+statement = assignment ";" | while | if | call ";" | return ";" .
+
+variable = type identifier .
+procedure = ( "void" | type ) identifier "(" [ variable { "," variable } ] ")" ( ";" | "{" { variable ";" } { statement } "}" ) .
+
+cstar = { variable ";" | procedure } .
+
+*/
 
 #include "glue.h"
 #include "scanner.h"
@@ -190,11 +190,11 @@ int parser_main() {
 
     return 0;
 }
-// 
-// -----------------------------
-// 
-// This is a dynamically allocated, list-based implementation of a symbol table in C*, extend as needed.
-// 
+/*
+-----------------------------
+
+This is a dynamically allocated, list-based implementation of a symbol table in C*, extend as needed.
+*/
 
 int createSymbolTableEntry(int data) {
     int* symbolTableCursor;
@@ -257,11 +257,11 @@ int identifierMatch(int* symbolTableIdentifier) {
             return 0;
     }
 }
-// 
-// -----------------------------
-// 
-// Here is the above recursive-descent parser decorated into a single-pass compiler that generates DLX code for arithmetic expressions in C*. Assignments are to be done as part of an assignment.
-// 
+/*
+-----------------------------
+
+Here is the above recursive-descent parser decorated into a single-pass compiler that generates DLX code for arithmetic expressions in C*. Assignments are to be done as part of an assignment.
+*/
 
 int expression() {
 	int symbol;
@@ -406,11 +406,11 @@ void factor() {
     // assert: allocatedRegisters == n + 1
 }
 
-// 
-// -----------------------------
-// 
-// Store global variable offsets in symbol table.
-// 
+/*
+-----------------------------
+
+Store global variable offsets in symbol table.
+*/
 
 int getGlobalVariableOffset() {
     int* symbolTableCursor;
@@ -435,11 +435,11 @@ int allocateGlobalVariable() {
     // each variable needs 4 bytes, global variable offsets are negative
     return -4 * allocatedGlobalVariables;
 }
-// 
-// -----------------------------
-// 
-// While statements are compiled as follows. Conditional statements are analogous and should be done as part of an assignment.
-// 
+/*
+-----------------------------
+
+While statements are compiled as follows. Conditional statements are analogous and should be done as part of an assignment.
+*/
 
 void whileStatement() {
 	int symbol;
@@ -515,11 +515,11 @@ void fixup(int codeAddress) {
     // branch from instruction at codeAddress to instruction at codeLength
     setParameterCInCode(codeAddress, codeLength - codeAddress);
 }
-// 
-// -----------------------------
-// 
-// Procedure calls are (in principle) done as follows. Note that (in reality) the procedure identifier needs to be parsed before invoking call and then passed into call (by factor and statement) because the grammar (for factor and statement) is not fully left-factored. In other words, the parser can only know if it is dealing with a variable access or a procedure call after it has seen the symbol that appears after the identifier, i.e., if the parser then sees a left parenthesis (call) or not (identifier). This is called a lookahead of two (which can nevertheless be reduced to one by left factoring).
-// 
+/*
+-----------------------------
+
+Procedure calls are (in principle) done as follows. Note that (in reality) the procedure identifier needs to be parsed before invoking call and then passed into call (by factor and statement) because the grammar (for factor and statement) is not fully left-factored. In other words, the parser can only know if it is dealing with a variable access or a procedure call after it has seen the symbol that appears after the identifier, i.e., if the parser then sees a left parenthesis (call) or not (identifier). This is called a lookahead of two (which can nevertheless be reduced to one by left factoring).
+*/
 
 void call() {
 	int procedureAddress;
@@ -611,11 +611,11 @@ void call() {
 
     // assert: allocatedRegisters == n
 }
-// 
-// -----------------------------
-// 
-// Store procedure addresses in symbol table and create fixup chains for forward declarations.
-// 
+/*
+-----------------------------
+
+Store procedure addresses in symbol table and create fixup chains for forward declarations.
+*/
 
 int setProcedureAddress() {
     int* symbolTableCursor;
@@ -641,13 +641,11 @@ int setProcedureAddress() {
         // and save address of next instruction
         return createSymbolTableEntry(codeLength);
 }
-// 
-// -----------------------------
-// 
-// Procedure definitions are next. Here the construction of the local symbol table containing the
-// parameters and local variables of a procedure is still to be done as part of an assignment.
-// Also, the access of parameters and local variables still needs to be implemented (in factor and assignment).
-// 
+/*
+-----------------------------
+
+Procedure definitions are next. Here the construction of the local symbol table containing the parameters and local variables of a procedure is still to be done as part of an assignment. Also, the access of parameters and local variables still needs to be implemented (in factor and assignment).
+*/
 
 void procedure() {
     // assert: allocatedRegisters == 0
@@ -774,11 +772,11 @@ void procedure() {
 
     // assert: allocatedRegisters == 0
 }
-// 
-// -----------------------------
-// 
-// Fixup a whole chain of branch instructions.
-// 
+/*
+-----------------------------
+
+Fixup a whole chain of branch instructions.
+*/
 
 void fixlink(int codeAddress) {
     int previousCodeAddress;
@@ -791,11 +789,11 @@ void fixlink(int codeAddress) {
         codeAddress = previousCodeAddress;
     }
 }
-// 
-// -----------------------------
-// 
-// Return statements only need to make sure that the return value of procedures are stored in RR before returning.
-// 
+/*
+-----------------------------
+
+Return statements only need to make sure that the return value of procedures are stored in RR before returning.
+*/
 
 void returnStatement() {
     // assert: allocatedRegisters == 0
@@ -827,15 +825,15 @@ void returnStatement() {
 
 
 
-//  *****************************************************************************************
-// 
-// missing stuff
-// 
+/* *****************************************************************************************
+
+missing stuff
+*/
 
 int cstar() {
 	// parser fragment...
 	// cstar = { variable ";" | procedure } .
-	
+
 }
 int declaration() {
 }
