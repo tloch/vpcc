@@ -1,0 +1,6 @@
+glue.o
+parser
+parser.o
+scanner.o
+testbed.o
+
