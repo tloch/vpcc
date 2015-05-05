@@ -106,7 +106,7 @@ int getSymbol2() {
 
 	if (findNextCharacter() == -1)
 		return -1;
-printf("c: %c (%d)\n", character, character);
+//printf("c: %c (%d)\n", character, character);
 
 	if (isCharacterLetter()) {
 		// found identifier or keyword
