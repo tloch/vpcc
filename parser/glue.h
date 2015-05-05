@@ -16,5 +16,7 @@ extern int puts(char *s);
 
 extern int printf(char *fmt, ...);
 
+#define assert(EXP) assert2(EXP, #EXP)
+extern void assert2(int x, char *s);
 
 #endif

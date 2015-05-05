@@ -13,8 +13,8 @@ clean:
 test: parser
 	./parser < parser.c
 
-parser: scanner.o parser.o testbed.o
-	$(CC) -o scanner scanner.o parser.o testbed.o
+parser: scanner.o parser.o testbed.o glue.o
+	$(CC) -o parser scanner.o parser.o testbed.o
 
 scanner.o: scanner.c glue.h
 	$(CC) -o scanner.o -c scanner.c

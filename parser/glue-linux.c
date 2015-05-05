@@ -1,7 +1,18 @@
 //#include "glue.h"
 
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
+void assert2(int x, char *s, char *fn, char ln) {
+	if(x) return;
+	printf("assertion failed: %s\n", s);
+	printf("         in %s line %d\n", fn, ln);
+	exit(-1);
+}
+
+
+/*
 static int heap[1 * 1024 * 1024]; // 1Mword
 static int bptr = 0;
 
@@ -12,7 +23,7 @@ int *malloc(int size) {
 	return pos;
 }
 
-/*
+
 int getchar() {
 	char buffer;
 //  mipster_syscall(4004, 1, (unsigned int)str, 15, 0);
