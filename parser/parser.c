@@ -662,10 +662,11 @@ void procedure() {
 
         if (symbol == ASTERISK) {
             getSymbol();
-			pointer = 1;
-		} else {
-			pointer = 0;
-		}
+            pointer = 1;
+        } else {
+	    pointer = 0;
+	}
+
     } else if (symbol == VOID)
         getSymbol();
     else
@@ -848,7 +849,7 @@ void returnStatement() {
 int cstar() {
 	// parser fragment...
 	// cstar = { variable ";" | procedure } .
-	
+	while(symbol != -1) procedure();
 }
 
 
