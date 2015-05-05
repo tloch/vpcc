@@ -217,15 +217,15 @@ printf("c: %c (%d)\n", character, character);
 }
 
 int getSymbol() {
-	int x;
+	int token;
 
-	x = getSymbol2();
+	token = getSymbol2();
 
 	printf("Token: %s (%d)\n", get_token_name(token), token);
 	if(token == IDENTIFIER)	printf("\t'%s'\n", intstr_to_charstr(identifier));
 	if(token == INTEGER) 		printf("\t%d\n", integer);
 
-	return x;
+	return token;
 }
 
 // consume input until next character is found. ignores whitespace, comments
@@ -456,13 +456,6 @@ int isCharacterLetterOrDigitOrUnderscore() {
 
 
 
-		printf("Token: %s (%d)\n", get_token_name(token), token);
-		if(token == IDENTIFIER)	printf("\t'%s'\n", intstr_to_charstr(identifier));
-		if(token == INTEGER) 		printf("\t%d\n", integer);
-	}
-
-	return EXIT_SUCCESS;
-}
 
 
 
