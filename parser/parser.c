@@ -96,13 +96,7 @@ int maxCodeLength;
 int returnBranches;
 
 int init_parser() {
-	// constants for register names
-	LINK = 31; // link register
-	SP = 30;   // stack pointer
-	FP = 29;   // frame pointer
-	GP = 28;   // global pointer
-	RR = 27;   // return register
-	ZR = 0;    // zero register
+	// nothing to pee here yet...
 }
 
 
@@ -479,7 +473,7 @@ void whileStatement() {
         // assert: allocatedRegisters == 1
 
         // target address unknown, so just say 0 here, fixup is done below
-        emit(branchInstruction, allocatedRegisters, 0, 0);
+        emitCode(branchInstruction, allocatedRegisters, 0, 0);
 
         // do not need the register for comparison anymore
         allocatedRegisters = allocatedRegisters - 1;
@@ -506,7 +500,7 @@ void whileStatement() {
     // assert: allocatedRegisters == 0
 
     // unconditional branch backwards to while
-    emit(BR, 0, 0, branchBackwardsToWhile - codeLength);
+    emitCode(BR, 0, 0, branchBackwardsToWhile - codeLength);
 
     // here will be the first instruction after the loop
     // so point the conditional branch instruction from above here
@@ -543,7 +537,7 @@ void call() {
 
         // save allocated registers on stack
         while (allocatedRegisters > 0) {
-            emit(PSH, allocatedRegisters, SP, 4);
+            emitCode(PSH, allocatedRegisters, SP, 4);
 
             allocatedRegisters = allocatedRegisters - 1;
         }
@@ -557,7 +551,7 @@ void call() {
                 expression();
 
                 // push value of expression (actual parameter) onto stack
-                emit(PSH, allocatedRegisters, SP, 4);
+                emitCode(PSH, allocatedRegisters, SP, 4);
 
                 // register for value of expression is not needed anymore
                 allocatedRegisters = allocatedRegisters - 1;
@@ -570,7 +564,7 @@ void call() {
                     expression();
 
                     // push value of expression (actual parameter) onto stack
-                    emit(PSH, allocatedRegisters, SP, 4);
+                    emitCode(PSH, allocatedRegisters, SP, 4);
 
                     // register for value of expression is not needed anymore
                     allocatedRegisters = allocatedRegisters - 1;
@@ -594,13 +588,13 @@ void call() {
 
         if (procedureAddress == codeLength)
             // create a new fixup chain
-            emit(BSR, 0, 0, 0);
+            emitCode(BSR, 0, 0, 0);
         else if (getOpcodeFromCode(procedureAddress) == BSR)
             // link to the head of an existing fixup chain
-            emit(BSR, 0, 0, procedureAddress);
+            emitCode(BSR, 0, 0, procedureAddress);
         else
             // branch to subroutine to invoke procedure
-            emit(BSR, 0, 0, procedureAddress - codeLength);
+            emitCode(BSR, 0, 0, procedureAddress - codeLength);
 
         // assert: allocatedRegisters == 0
 
@@ -608,7 +602,7 @@ void call() {
         while (allocatedRegisters < savedAllocatedRegisters) {
             allocatedRegisters = allocatedRegisters + 1;
 
-            emit(POP, allocatedRegisters, SP, 4);
+            emitCode(POP, allocatedRegisters, SP, 4);
         }
     } else
         syntaxError(CALL); // identifier expected!
@@ -660,12 +654,18 @@ void procedure() {
     int callBranches;
     int parameters;
     int localVariables;
+	int pointer;
+	int *variable_name;
 
     if (symbol == INTEGER) {
         getSymbol();
 
-        if (symbol == ASTERISK)
+        if (symbol == ASTERISK) {
             getSymbol();
+			pointer = 1;
+		} else {
+			pointer = 0;
+		}
     } else if (symbol == VOID)
         getSymbol();
     else
@@ -675,8 +675,15 @@ void procedure() {
 
     if (symbol == IDENTIFIER) {
         callBranches = setProcedureAddress();
-
+		variable_name = identifier;
         getSymbol();
+
+		// quick check for variables!
+        if (symbol == SEMICOLON) {
+			getSymbol();
+			return;
+		}
+
 
         if (callBranches != codeLength)
             if (getOpcodeFromCode(callBranches) == BSR)
@@ -739,16 +746,16 @@ void procedure() {
             // procedure prologue
 
             // save return address
-            emit(PSH, LINK, SP, 4);
+            emitCode(PSH, LINK, SP, 4);
 
             // save caller's frame
-            emit(PSH, FP, SP, 4);
+            emitCode(PSH, FP, SP, 4);
 
             // allocate callee's frame
-            emit(ADD, FP, ZR, SP);
+            emitCode(ADD, FP, ZR, SP);
 
             // allocate callee's local variables
-            emit(SUBI, SP, SP, localVariables * 4);
+            emitCode(SUBI, SP, SP, localVariables * 4);
 
             // create a fixup chain for return statements
             returnBranches = 0;
@@ -763,16 +770,16 @@ void procedure() {
             fixlink(returnBranches);
 
             // deallocate callee's frame and local variables
-            emit(ADD, SP, ZR, FP);
+            emitCode(ADD, SP, ZR, FP);
 
             // restore caller's frame
-            emit(POP, FP, SP, 4);
+            emitCode(POP, FP, SP, 4);
 
             // restore return address and deallocate parameters
-            emit(POP, LINK, SP, parameters * 4 + 4);
+            emitCode(POP, LINK, SP, parameters * 4 + 4);
 
             // return
-            emit(RET, 0, 0, LINK);
+            emitCode(RET, 0, 0, LINK);
         } else
             syntaxError(PROCEDURE); // semicolon or left braces expected!
     } else
@@ -815,7 +822,7 @@ void returnStatement() {
         expression();
 
         // save value of expression in return register
-        emit(ADD, RR, ZR, allocatedRegisters);
+        emitCode(ADD, RR, ZR, allocatedRegisters);
 
         // register for value of expression is not needed anymore
         allocatedRegisters = allocatedRegisters - 1;
@@ -823,7 +830,7 @@ void returnStatement() {
 
     // unconditional branch to procedure epilogue
     // maintain fixup chain for later fixup
-    emit(BR, 0, 0, returnBranches);
+    emitCode(BR, 0, 0, returnBranches);
 
     // new head of fixup chain
     returnBranches = codeLength - 1;
@@ -843,18 +850,18 @@ int cstar() {
 	// cstar = { variable ";" | procedure } .
 	
 }
+
+
 int declaration() {
 	// pass
 }
 int declarationError() {
 	// pass
 }
-int emit(int op, int a, int b, int c) {
-	printf("emit(%d, %d, %d, %d)\n", op, a, b, c);
-}
 int emitCode(int op, int a, int b, int c) {
 	printf("emitCode(%d, %d, %d, %d)\n", op, a, b, c);
 }
+
 int getOpcodeFromCode() {
 }
 int getParameterCFromCode() {
