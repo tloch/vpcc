@@ -428,7 +428,35 @@ int identifierOrKeyword() {
 		else
 			return IDENTIFIER;
 
+	} else if (*identifierCursor == 118) { // ASCII code 118 = v
+		// looking for "void"
+		// "void" => 118 111 105 100
+
+		identifierCursor = identifierCursor + 1;
+
+		if (*identifierCursor == 111) // ASCII code 111 = o
+			identifierCursor = identifierCursor + 1;
+		else
+			return IDENTIFIER;
+
+		if (*identifierCursor == 105) // ASCII code 105 = i
+			identifierCursor = identifierCursor + 1;
+		else
+			return IDENTIFIER;
+
+		if (*identifierCursor == 100) // ASCII code 100 = d
+			identifierCursor = identifierCursor + 1;
+		else
+			return IDENTIFIER;
+
+
+		if (*identifierCursor == 0) // end of identifier?
+			return VOID;
+		else
+			return IDENTIFIER;
+
 		//...
+
 	} else
 		// no keyword found
 		return IDENTIFIER;
