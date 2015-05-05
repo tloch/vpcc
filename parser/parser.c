@@ -55,9 +55,7 @@ int SP;   // stack pointer
 int FP;   // frame pointer
 int GP;   // global pointer
 int RR;   // return register
-// ...
-
-int ZR; // zero register
+int ZR;   // zero register
 
 // compile-time, stack-based register allocation
 int allocatedRegisters;
@@ -98,7 +96,13 @@ int maxCodeLength;
 int returnBranches;
 
 int init_parser() {
-	// nothing to do here yet
+	// constants for register names
+	LINK = 31; // link register
+	SP = 30;   // stack pointer
+	FP = 29;   // frame pointer
+	GP = 28;   // global pointer
+	RR = 27;   // return register
+	ZR = 0;    // zero register
 }
 
 
@@ -667,6 +671,8 @@ void procedure() {
     else
         syntaxError(PROCEDURE); // int expected!
 
+	// done parsing ("int" [ "*" ] | "void")
+
     if (symbol == IDENTIFIER) {
         callBranches = setProcedureAddress();
 
@@ -838,8 +844,10 @@ int cstar() {
 	
 }
 int declaration() {
+	// pass
 }
 int declarationError() {
+	// pass
 }
 int emit(int op, int a, int b, int c) {
 	printf("emit(%d, %d, %d, %d)\n", op, a, b, c);
@@ -869,5 +877,6 @@ int syntaxError(int x) {
 	printf("Syntax error: %d\n", x);
 }
 int writeBinary() {
+	// pass
 }
 
