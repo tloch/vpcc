@@ -4,6 +4,9 @@
 int init_scanner();
 int getSymbol();
 
+void print_token(int token);
+
+
 extern int* identifier; // stores scanned identifier
 extern int integer; // stores scanned integer
 

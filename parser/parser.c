@@ -34,6 +34,7 @@
 #include "glue.h"
 #include "scanner.h"
 
+#define syntaxError(x) syntaxError2(x, __LINE__)
 
 // prototype declarations
 void term();
@@ -657,7 +658,8 @@ void procedure() {
 	int pointer;
 	int *variable_name;
 
-    if (symbol == INTEGER) {
+	print_token(symbol);
+    if (symbol == INT) {
         getSymbol();
 
         if (symbol == ASTERISK) {
@@ -667,10 +669,11 @@ void procedure() {
 	    pointer = 0;
 	}
 
-    } else if (symbol == VOID)
+    } else if (symbol == VOID) {
         getSymbol();
-    else
+    } else {
         syntaxError(PROCEDURE); // int expected!
+    }
 
 	// done parsing ("int" [ "*" ] | "void")
 
@@ -881,8 +884,8 @@ int setParameterCInCode() {
 }
 int statement() {
 }
-int syntaxError(int x) {
-	printf("Syntax error: %d\n", x);
+int syntaxError2(int x, int y) {
+	printf("Syntax error: %d (%d)\n", x, y);
 }
 int writeBinary() {
 	// pass

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 int character; // most recently read character
-//int symbol; // most recently recognized symbol
+int symbol; // most recently recognized symbol
 
 // tokens
 
@@ -216,15 +216,19 @@ printf("c: %c (%d)\n", character, character);
 		exit(-1); // unknown character
 }
 
+void print_token(int token) {
+	printf("Token: %s (%d)\n", get_token_name(token), token);
+	if(token == IDENTIFIER)	printf("\t'%s'\n", intstr_to_charstr(identifier));
+	if(token == INTEGER) 		printf("\t%d\n", integer);
+}
 int getSymbol() {
 	int token;
 
 	token = getSymbol2();
+	printf("SCANNER: ");
+	print_token(token);
 
-	printf("Token: %s (%d)\n", get_token_name(token), token);
-	if(token == IDENTIFIER)	printf("\t'%s'\n", intstr_to_charstr(identifier));
-	if(token == INTEGER) 		printf("\t%d\n", integer);
-
+	symbol = token;
 	return token;
 }
 
@@ -340,7 +344,7 @@ int identifierOrKeyword() {
 		if (*identifierCursor == 102) { // ASCII code 102 = f
 			// looking for "if"
 			// "if" => 105 102
-			
+
 			identifierCursor = identifierCursor + 1;
 
 			if (*identifierCursor == 0) // end of identifier?
