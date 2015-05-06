@@ -845,9 +845,12 @@ void returnStatement() {
 
         // register for value of expression is not needed anymore
         allocatedRegisters = allocatedRegisters - 1;
-    } else {
-	getSymbol();
     }
+
+    if (symbol == SEMICOLON)
+        getSymbol();
+    else
+        syntaxError(RETURN); // semicolon expected;
 
     // unconditional branch to procedure epilogue
     // maintain fixup chain for later fixup
