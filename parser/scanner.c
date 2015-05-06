@@ -3,6 +3,9 @@
 
 int character; // most recently read character
 int symbol; // most recently recognized symbol
+int symbol_lineno;
+
+int lineno;
 
 // tokens
 
@@ -27,14 +30,13 @@ int EQUAL;
 int PLUS;
 int MINUS;
 int ASSIGN;
-//int GT;
+int GT;
 int GTEQ;
-//int LT;
+int LT;
 int LTEQ;
 int COMMA;
-//int ;
-//int ;
-//int ;
+int NEQUAL;
+int NEGATE;
 //int ;
 //int ;
 //int ;
@@ -56,6 +58,8 @@ static char *intstr_to_charstr(int *is);
 static char *get_token_name(int sym);
 
 int init_scanner() {
+	lineno = 1;
+
 	character = getchar();
 	maxIdentifierLength = 64;
 
@@ -82,13 +86,13 @@ int init_scanner() {
 	PLUS		= 108;
 	MINUS		= 109;
 	ASSIGN		= 110;
-//	GT			= 111;
+	GT			= 111;
 	GTEQ		= 112; // greater than or equal
-//	LT			= 113;
+	LT			= 113;
 	LTEQ		= 114; // less than or equal
 	COMMA		= 115;
-//			= 116;
-//			= 117;
+	NEQUAL		= 116;
+	NEGATE		= 117;
 //			= 118;
 //			= 119;
 //			= 120;
@@ -108,6 +112,7 @@ int getSymbol2() {
 		return -1;
 //printf("c: %c (%d)\n", character, character);
 
+	symbol_lineno = lineno;
 	if (isCharacterLetter()) {
 		// found identifier or keyword
 		identifier = malloc(maxIdentifierLength * 4);
@@ -152,6 +157,15 @@ int getSymbol2() {
 		character = getchar();
 		return ASTERISK;
 
+	} else if (character == 33) { // "!" => 33
+		character = getchar();
+
+		if (character == 61) { // "=" => 61
+			character = getchar();
+			return NEQUAL;
+		} else
+			return NEGATE;
+
 	} else if (character == 40) { // "(" => 40
 		character = getchar();
 		return LPARENS;
@@ -192,7 +206,7 @@ int getSymbol2() {
 			character = getchar();
 			return GTEQ;
 		} else
-			exit(-1); //return GT;
+			return GT;
 
 	} else if (character == 60) { // "<" => 60
 		character = getchar();
@@ -201,7 +215,7 @@ int getSymbol2() {
 			character = getchar();
 			return LTEQ;
 		} else
-			exit(-1); //return LT;
+			return LT;
 
 
 	} else if (character == 44) { // "," => 44
@@ -221,11 +235,12 @@ void print_token(int token) {
 	if(token == IDENTIFIER)	printf("\t'%s'\n", intstr_to_charstr(identifier));
 	if(token == INTEGER) 		printf("\t%d\n", integer);
 }
+
 int getSymbol() {
 	int token;
 
 	token = getSymbol2();
-	printf("SCANNER: ");
+	printf("SCANNER[%d]: ", symbol_lineno);
 	print_token(token);
 
 	symbol = token;
@@ -268,6 +283,9 @@ int findNextCharacter() {
 				return character;
 		} else
 			return character;
+
+		if( (character == 10) || (character == 13) ) lineno++;
+
 	}
 }
 
@@ -327,7 +345,7 @@ int identifierOrKeyword() {
 		else
 			return IDENTIFIER;
 
-		if (*identifierCursor == 108) // ASCII code 109 = e
+		if (*identifierCursor == 101) // ASCII code 101 = e
 			identifierCursor = identifierCursor + 1;
 		else
 			return IDENTIFIER;
@@ -476,12 +494,12 @@ int isCharacterDigit() {
 }
 int isCharacterLetterOrDigit() {
 	if(isCharacterLetter()) return 1;
-	if(isCharacterLetter()) return 1;
+	if(isCharacterDigit()) return 1;
 	return 0;
 }
 int isCharacterLetterOrDigitOrUnderscore() {
 	if(isCharacterLetter()) return 1;
-	if(isCharacterLetter()) return 1;
+	if(isCharacterDigit()) return 1;
 	if(character == 95) return 1; // '_' = 95
 	return 0;
 }
@@ -523,8 +541,8 @@ static char *get_token_name(int sym) {
 //	if(sym == LT)			return "LT";
 	if(sym == LTEQ)			return "LTEQ";
 	if(sym == COMMA)		return "COMMA";
-//	if(sym == )	return "";
-//	if(sym == )	return "";
+	if(sym == NEQUAL)		return "NEQUAL";
+	if(sym == NEGATE)		return "NEGATE";
 //	if(sym == )	return "";
 //	if(sym == )	return "";
 //	if(sym == )	return "";

@@ -263,7 +263,47 @@ int identifierMatch(int* symbolTableIdentifier) {
 // 
 
 int expression() {
-printf("expression(%d)\n", symbol);
+	// parser fragment...
+	// expression = simpleExpression [ ( "==" | "!=" | "<" | ">" | "<=" | ">=" ) simpleExpression ] .
+	// simpleExpression = [ "-" ] term { ( "+" | "-" ) term } .
+//printf("expression(%d)\n", symbol);
+
+	simpleExpression();
+
+	if(symbol == EQUAL) {
+		getSymbol();
+		simpleExpression();
+		return;
+	}
+	if(symbol == NEQUAL) {
+		getSymbol();
+		simpleExpression();
+		return;
+	}
+	if(symbol == GT) {
+		getSymbol();
+		simpleExpression();
+		return;
+	}
+	if(symbol == LT) {
+		getSymbol();
+		simpleExpression();
+		return;
+	}
+	if(symbol == GTEQ) {
+		getSymbol();
+		simpleExpression();
+		return;
+	}
+	if(symbol == LTEQ) {
+		getSymbol();
+		simpleExpression();
+		return;
+	}
+
+}
+int simpleExpression() {
+//printf("simpleExpression(%d)\n", symbol);
     // assert: n = allocatedRegisters
 
     // have we parsed a minus sign?
@@ -310,7 +350,7 @@ printf("expression(%d)\n", symbol);
 }
 
 void term() {
-printf("term(%d)\n", symbol);
+//printf("term(%d)\n", symbol);
     // assert: n = allocatedRegisters
 
     // remember operator symbol
@@ -339,11 +379,11 @@ printf("term(%d)\n", symbol);
 }
 
 void cast() {
-printf("cast(%d)\n", symbol);
     if (symbol == LEFTPARENTHESIS) {
+//printf("cast(%d)\n", symbol);
         getSymbol();
 
-        if (symbol == INTEGER) {
+        if (symbol == INT) {
             getSymbol();
 
             if (symbol == ASTERISK)
@@ -360,7 +400,7 @@ printf("cast(%d)\n", symbol);
 }
 
 void factor() {
-printf("factor(%d)\n", symbol);
+//printf("factor(%d)\n", symbol);
     // assert: n = allocatedRegisters
 
     // have we parsed an asterisk sign?
@@ -386,14 +426,13 @@ printf("factor(%d)\n", symbol);
 	if(symbol == LPARENS) {
 		// have a call
 
-		symbol = COMMA; // force one iteration
-		while(symbol == COMMA) {
+		while(symbol != RPARENS) {
 			getSymbol();
 			expression();
 		}
-		if(symbol == RPARENS)
+		if(symbol == RPARENS) {
 			getSymbol();
-		else
+		} else
 			syntaxError(PROCEDURE); // right parenthesis expected
 	}
 
@@ -457,7 +496,6 @@ int allocateGlobalVariable() {
 // 
 
 void whileStatement() {
-	int symbol;
     // assert: allocatedRegisters == 0
 
     // both must be local variables to work for nested while statements
@@ -476,6 +514,8 @@ void whileStatement() {
         syntaxError(WHILE); // while expected!
 
     if (symbol == LEFTPARENTHESIS) {
+	getSymbol();
+
         // enhance expression() to return BEQ, BNE, etc.
         // depending on parsed comparison operator
         // hint 1: instruction must be the negation!
@@ -666,7 +706,7 @@ int setProcedureAddress() {
 
 void procedure() {
     // assert: allocatedRegisters == 0
-
+	//printf("procedure(%d)\n", symbol);
     // may be global variables but are anyway nicer like that
     int callBranches;
     int parameters;
@@ -779,14 +819,22 @@ void procedure() {
             // create a fixup chain for return statements
             returnBranches = 0;
 
-            while (symbol != RIGHTBRACES)
+            while (symbol != RIGHTBRACES) {
+		//printf("procedure statement {\n");
                 statement();
-
-            getSymbol();
+		//printf("}\n");
+	}
+		if(symbol == RBRACE) {
+			getSymbol();
+		} else {
+			syntaxError(PROCEDURE);
+		}
+		//printf("procedure body done\n");
+            //getSymbol();
 
             // procedure epilogue
 
-            fixlink(returnBranches);
+            //fixlink(returnBranches);
 
             // deallocate callee's frame and local variables
             emitCode(ADD, SP, ZR, FP);
@@ -803,6 +851,7 @@ void procedure() {
             syntaxError(PROCEDURE); // semicolon or left braces expected!
     } else
         syntaxError(PROCEDURE); // identifier expected!
+
 
     // assert: allocatedRegisters == 0
 }
@@ -872,7 +921,11 @@ void returnStatement() {
 int cstar() {
 	// parser fragment...
 	// cstar = { variable ";" | procedure } .
-	while(symbol != -1) procedure();
+	while(symbol != -1) {
+		//printf("x\n");
+		procedure();
+		//printf("y\n");
+	}
 }
 
 
@@ -899,7 +952,7 @@ int declarationError() {
 	// pass
 }
 int emitCode(int op, int a, int b, int c) {
-	printf("emitCode(%d, %d, %d, %d)\n", op, a, b, c);
+	//printf("emitCode(%d, %d, %d, %d)\n", op, a, b, c);
 }
 
 int getOpcodeFromCode() {
@@ -919,15 +972,18 @@ int isSymbolPlusOrMinus() {
 int setParameterCInCode() {
 }
 int statement() {
-printf("statement(%d)\n", symbol);
+//printf("statement(%d)\n", symbol);
 	// parser fragment...
 	// statement = assignment ";" | while | if | call ";" | return ";" .
 	if(symbol == WHILE) {
 		whileStatement();
+		return;
 	} else if(symbol == IF) {
 		ifStatement();
+		return;
 	} else if(symbol == RETURN) {
 		returnStatement();
+		return;
 	}
 
 	// now only "call" and "assignment" are left...
@@ -944,15 +1000,15 @@ printf("statement(%d)\n", symbol);
 	else
 		syntaxError(PROCEDURE); // identifier expected
 
-printf("\t(%d)\n", symbol);
 
 	if(symbol == ASSIGN) {
 		// have an assignment
 		getSymbol();
+//printf("\t(assign)\n");
 		expression();
 	} else if(symbol == LPARENS) {
 		// have a call
-printf("\t(call)\n");
+//printf("\t(call)\n");
 		getSymbol();
 
 
@@ -969,11 +1025,13 @@ printf("\t(call)\n");
 		syntaxError(PROCEDURE); // equal sign or left parenthesis expected
 	}
 
+//printf("\t(after assign or call 1: %d)\n", symbol);
 	if(symbol == SEMICOLON)
 		getSymbol();
 	else
 		syntaxError(PROCEDURE); // semicolon expected
 
+//printf("\t(after assign or call 2: %d)\n", symbol);
 }
 int ifStatement() {
 	// parser fragment
@@ -989,7 +1047,33 @@ int ifStatement() {
 	else
 		syntaxError(PROCEDURE); // left parenthesis expected
 
+//printf("if expression {\n");
+
 	expression();
+
+//printf("}\n");
+
+	if(symbol == RPARENS)
+		getSymbol();
+	else
+		syntaxError(PROCEDURE); // right parenthesis expected
+
+    if (symbol == LEFTBRACES) {
+        getSymbol();
+
+        while (symbol != RIGHTBRACES)
+            statement();
+
+        getSymbol();
+    } else
+        statement();
+
+
+
+	if(symbol == ELSE)
+		getSymbol();
+	else
+		return;
 
     if (symbol == LEFTBRACES) {
         getSymbol();
@@ -1006,7 +1090,7 @@ int ifStatement() {
 
 
 int syntaxError2(int x, int y) {
-	printf("Syntax error: %d (%d)\n", x, y);
+	printf("Syntax error(%d): %d (%d)\n", symbol, x, y);
 }
 int writeBinary() {
 	// pass
