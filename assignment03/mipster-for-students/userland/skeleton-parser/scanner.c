@@ -6,6 +6,8 @@ int *character; // most recently read character
 int symbol; // most recently recognized symbol
 int lookahead;
 
+int printf(char *fmt, ...);
+
 // tokens
 
 // keyword tokens
@@ -29,9 +31,9 @@ int EQUAL;
 int PLUS;
 int MINUS;
 int ASSIGN;
-//int GT;
+int GT;
 int GTEQ;
-//int LT;
+int LT;
 int LTEQ;
 int COMMA;
 int NOT;
@@ -102,9 +104,9 @@ int init_scanner() {
 	PLUS			= 108;
 	MINUS		= 109;
 	ASSIGN		= 110;
-//	GT			= 111;
+	GT			= 111;
 	GTEQ			= 112; // greater than or equal
-//	LT			= 113;
+	LT			= 113;
 	LTEQ			= 114; // less than or equal
 	COMMA		= 115;
      NOT			= 116;
@@ -114,7 +116,27 @@ int init_scanner() {
 	// FIXME: add new tokens here!
 }
 
+/**/
+int getSymbol2();
+
+
+void print_token(int token) {
+	printf("Token: %s (%d)\n", get_token_name(token), token);
+	if(token == IDENTIFIER)	printf("\t'%ls'\n", identifier);
+	if(token == INTEGER) 		printf("\t%d\n", integer);
+}
+
 int getSymbol() {
+	int token;
+
+	token = getSymbol2();
+	printf("[SCANNER] %d: ", lineNR); print_token(token);
+
+	return token;
+}
+/**/
+
+int getSymbol2() {
 	int* identifierCursor;
 	int identifierLength;
 
@@ -215,7 +237,7 @@ int getSymbol() {
 			*character = mipster_getchar();
 			return GTEQ;
 		} else
-			mipster_exit(-1); //return GT;
+			return GT;
 
 	} else if (*character == 60) { // "<" => 60
 		*character = mipster_getchar();
@@ -224,7 +246,7 @@ int getSymbol() {
 			*character = mipster_getchar();
 			return LTEQ;
 		} else
-			mipster_exit(-1); //return LT;
+			return LT;
 
 
 	} else if (*character == 44) { // "," => 44
@@ -235,6 +257,8 @@ int getSymbol() {
 
 	///...
 
+	} else if(*character == -1) {
+		return -1;
 	} else
 		mipster_exit(-1); // unknown character
 }
@@ -662,7 +686,7 @@ void dump_symbol_table(int *symbolTableCursor) {
 	while(symbolTableCursor != 0) {
 		//print_symbol_table_entry(symbolTableCursor);
 
-		printf("\t%d: '%lsgi'\n", symbolTableCursor, symbolTableCursor[1]);
+		printf("\t%d: '%ls'\n", symbolTableCursor, symbolTableCursor[1]);
 
 		// cast only works if size of int and int* is equivalent
 		symbolTableCursor = (int*) *symbolTableCursor;

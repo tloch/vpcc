@@ -3,7 +3,7 @@
 
 int init_scanner();
 int getSymbol();
-
+int printf(char *fmt, ...);
 
 void dump_symbol_table(int *symbolTableCursor);
 
@@ -37,9 +37,9 @@ extern int EQUAL;
 extern int PLUS;
 extern int MINUS;
 extern int ASSIGN;
-//extern int GT;
+extern int GT;
 extern int GTEQ;
-//extern int LT;
+extern int LT;
 extern int LTEQ;
 extern int COMMA;
 extern int SLASH;

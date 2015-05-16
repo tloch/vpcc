@@ -1,5 +1,5 @@
 int* data;
-int* cdata
+int* cdata;
 int* minmax;
 int* cminmax;
 int max;
@@ -8,6 +8,9 @@ int len;
 int i;
 
 int main () {
+	int j;
+	int *k;
+
 	data 	= malloc(10 * 4);
 	cdata 	= data;  			// cursor to start of data
 	minmax 	= malloc(2 * 4);
@@ -59,3 +62,7 @@ int main () {
 	// print the results in minmax to stdout
 	// add a return 0 if necessary
 }
+
+x
+
+

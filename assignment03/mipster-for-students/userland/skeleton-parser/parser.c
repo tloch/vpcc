@@ -458,7 +458,15 @@ int relation_expression() {
 		getCurrentSymbol();
 		expression();
 	}
+	else if (symbol == GT) {
+		getCurrentSymbol();
+		expression();
+	}
 	else if (symbol == GTEQ) {
+		getCurrentSymbol();
+		expression();
+	}
+	else if (symbol == LT) {
 		getCurrentSymbol();
 		expression();
 	}
@@ -961,6 +969,7 @@ void procedure(int have_asterisk) {
        // callBranches = setProcedureAddress();
 		createSymbolTableEntry(0);
 		global_symbol_table = symbolTable;
+		printf("[PARSER] last entry of global symbol table: %d\n", global_symbol_table);
 
 		dump_symbol_table(symbolTable);
 
@@ -1054,10 +1063,11 @@ void procedure(int have_asterisk) {
             // create a fixup chain for return statements
             returnBranches = 0;
 
+	printf("\n[PARSER] ===== begin procedure statement block =====\n\n");
             while (symbol != RBRACE) {
             	statement();
             }
-		               
+	printf("\n[PARSER] ===== end procedure statement block =====\n\n");
             getCurrentSymbol();
 
             // procedure epilogue
@@ -1086,7 +1096,10 @@ void procedure(int have_asterisk) {
 	// restore previous symbol table state
 	if(global_symbol_table != 0 ) {
 		symbolTable = global_symbol_table;
+		printf("[PARSER] clearing local symbol table entries\n");
+		dump_symbol_table(symbolTable);
 	}
+	printf("[PARSER] end of procedure\n");
 
     // assert: allocatedRegisters == 0
 }
