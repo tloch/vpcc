@@ -4,6 +4,9 @@
 int init_scanner();
 int getSymbol();
 
+
+void dump_symbol_table(int *symbolTableCursor);
+
 extern int* identifier; // stores scanned identifier
 extern int integer; // stores scanned integer
 extern int lineNR;

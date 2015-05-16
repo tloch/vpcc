@@ -1,5 +1,7 @@
 #include "mipster.h"
 
+#include <stdarg.h>
+
 int *character; // most recently read character
 int symbol; // most recently recognized symbol
 int lookahead;
@@ -149,7 +151,7 @@ int getSymbol() {
 
 		while (isCharacterDigit()) {
 			// caution: overflows remain undetected
-			integer = integer * 10 + character - 48;
+			integer = integer * 10 + (*character) - 48;
 
 			*character = mipster_getchar();
 		}
@@ -532,6 +534,16 @@ char *get_token_name(int sym) {
 	return "unknown";
 }
 
+int puts(char *str) {
+	int len = 0;
+	for(; str[len] != '\0'; len++);
+
+	// arguments: syscall number, file handle, pointer to userspace buffer, buffer length, constant 0
+	mipster_syscall(4004, 1, (unsigned int)str, len, 0);
+
+	return 1;
+}
+
 int putchar(int c) {
 	// this relies on integers being stored little-endian, i.e. least significant byte first
 	// somehow mipster is missing instructions that prevent assigning a char variable from an int value.
@@ -572,6 +584,93 @@ int print_int(int i) {
 	return 0;
 }
 
+int printf(char *fmt, ...) {
+	va_list ap;
+	char *f;
+	char c;
+	int i;
+	int *j;
+	char *s;
+	int length;
+
+	va_start(ap, fmt);
+
+	for(f = fmt; *f != '\0'; f++) {
+		if(*f != '%') {
+			putchar(*f);
+			continue;
+		}
+		f++;
+
+		length = 0;
+
+		while(*f != '\0') {
+			if(*f == 'l') {
+				length++;
+			} else {
+				break;
+			}
+
+			f++;
+		}
+
+		if(*f == '\0') continue;
+
+		switch(*f) {
+		case 'c':
+			i = va_arg(ap, int);
+			putchar(i);
+			break;
+		case 's':
+			if(length == 0) {
+				s = va_arg(ap, char*);
+				puts(s);
+			} else {
+				j = va_arg(ap, int*);
+				while(*j != 0) {
+					putchar(*j);
+					j++;
+				}
+			}
+			break;
+		case 'd':
+			i = va_arg(ap, int);
+			print_int(i);
+			break;
+		default:
+			putchar('%');
+			putchar(*f);
+		}
+	}
+
+	va_end(ap);
+
+	return 0;
+}
+
+void print_symbol_table_entry(int *e) {
+	// 1 list pointer, 1 identifier pointer, 1 data integer, 1 unused field
+	printf("\t%d: '%ls'\n", e, e[1]);
+	printf("\t\tnext:   %d\n", e[0]);
+	printf("\t\tdata:   %d\n", e[2]);
+	printf("\t\tunused: %d\n", e[3]);
+}
+
+void dump_symbol_table(int *symbolTableCursor) {
+	printf("Symbol Table:");
+	printf("\n");
+	while(symbolTableCursor != 0) {
+		//print_symbol_table_entry(symbolTableCursor);
+
+		printf("\t%d: '%ls'\n", symbolTableCursor, symbolTableCursor[1]);
+
+		// cast only works if size of int and int* is equivalent
+		symbolTableCursor = (int*) *symbolTableCursor;
+	}
+	printf("\n");
+}
+
+
 void printError(int errorcode) {
 	char *msg;
 	msg = get_error_msg(errorcode);
@@ -587,17 +686,17 @@ void printError(int errorcode) {
 void printDebug(int errorcode) {
 	char *msg;
 	msg = get_error_msg(errorcode);
-	
-	mipster_syscall(4004, 1, (unsigned int)"D: ", 100, 0);
-	mipster_syscall(4004, 1, (unsigned int)msg, 100, 0);
-	mipster_syscall(4004, 1, (unsigned int)" SYM: ", 100, 0);
-	mipster_syscall(4004, 1, (unsigned int)get_token_name(symbol), 100, 0);
-	mipster_syscall(4004, 1, (unsigned int)" Lahead: ", 100, 0);
-	mipster_syscall(4004, 1, (unsigned int)get_token_name(lookahead), 100, 0);
-	mipster_syscall(4004, 1, (unsigned int)" LINENR: ", 100, 0);
-	print_int(lineNR);
-	mipster_syscall(4004, 1, (unsigned int)"\n", 1, 0);
-	//printf("D: %s, SYM: %s, Lahead: %s, LINENR: %d \n",msg, get_token_name(symbol), get_token_name(lookahead), lineNR);
+
+	//mipster_syscall(4004, 1, (unsigned int)"D: ", 100, 0);
+	//mipster_syscall(4004, 1, (unsigned int)msg, 100, 0);
+	//mipster_syscall(4004, 1, (unsigned int)" SYM: ", 100, 0);
+	//mipster_syscall(4004, 1, (unsigned int)get_token_name(symbol), 100, 0);
+	//mipster_syscall(4004, 1, (unsigned int)" Lahead: ", 100, 0);
+	//mipster_syscall(4004, 1, (unsigned int)get_token_name(lookahead), 100, 0);
+	//mipster_syscall(4004, 1, (unsigned int)" LINENR: ", 100, 0);
+	//print_int(lineNR);
+	//mipster_syscall(4004, 1, (unsigned int)"\n", 1, 0);
+	printf("D: %s, SYM: %s, Lahead: %s, LINENR: %d \n",msg, get_token_name(symbol), get_token_name(lookahead), lineNR);
 }
 
 char *get_error_msg(int errorcode) {

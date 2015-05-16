@@ -18,8 +18,8 @@ void returnStatement();
 void fixup(int codeAddress);
 void call();
 int setProcedureAddress();
-void procedure();
-void variable();
+void procedure(int have_asterisk);
+void variable(int have_asterisk);
 void fixlink(int codeAddress);
 void statement();
 void assignment();
@@ -36,9 +36,9 @@ int SP;   // stack pointer
 int FP;   // frame pointer
 int GP;   // global pointer
 int RR;   // return register
+int ZR; // zero register
 //...
 
-int ZR; // zero register
 
 // compile-time, stack-based register allocation
 int allocatedRegisters;
@@ -49,8 +49,24 @@ int allocatedGlobalVariables;
 // opcodes
 int ADD;
 int SUB;
+int MUL;
+int DIV;
+int ADDI;
+int SUBI;
+
+int LDW;
+
+int HLT;
+
+int BSR;
+int BR;
+int RET;
+
+int PSH;
+int POP;
 //...
 
+// start pointer of global symbol table's linked list.
 int* symbolTable;
 
 int* code;
@@ -201,10 +217,11 @@ int main() {
 //This is a dynamically allocated, list-based implementation of a symbol table in C*, extend as needed.
 
 int createSymbolTableEntry(int data) {
+	// add current identifier as symbol into symbol table
     int* symbolTableCursor;
 
-    // 1 list pointer, 1 identifier pointer, 1 data integer
-    symbolTableCursor = mipster_malloc(3 * 4);
+    // 1 list pointer, 1 identifier pointer, 1 data integer, 1 unused field
+    symbolTableCursor = mipster_malloc(4 * 4);
 
     // create entry at head of symbol table
     // cast only works if size of int and int* is equivalent
@@ -224,6 +241,7 @@ int createSymbolTableEntry(int data) {
 }
 
 int* getSymbolTableEntry() {
+	// look up current identifier in symbol table. if found, return pointer to list element. return 0 otherwise
     int* symbolTableCursor;
 
     symbolTableCursor = symbolTable;
@@ -231,6 +249,7 @@ int* getSymbolTableEntry() {
     while (symbolTableCursor != 0) {
         if (identifierMatch(symbolTableCursor + 1)) {
             // return entry
+			print_symbol_table_entry(symbolTableCursor);
             return symbolTableCursor;
         }
         else {
@@ -245,6 +264,7 @@ int* getSymbolTableEntry() {
 }
 
 int identifierMatch(int* symbolTableIdentifier) {
+	// do strcmp(symbolTableIdentifier, identifier); return 1 if strings match, 0 otherwise.
     int* identifierCursor;
     int* symbolTableIdentifierCursor;
 
@@ -263,37 +283,57 @@ int identifierMatch(int* symbolTableIdentifier) {
             return 0;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 //-----------------------------
 
 //Here is the above recursive-descent parser decorated into a single-pass compiler that generates DLX code for arithmetic expressions in C*. Assignments are to be done as part of an assignment.
 
 void cstar() {
-	variableORprocedure();
+	while (symbol != -1) {
+		variableORprocedure();
+	}
 }
 
 void variableORprocedure() {
+	int have_asterisk;
 	debug(E_VARIABLEORPOCEDURE);
-	while (symbol != -1) {
-		if (symbol == VOID) {			
-			getCurrentSymbol();
-			if (symbol == ASTERISK) {
-				getCurrentSymbol();
-			}
-			debug(E_VOID);
-			procedure();
-		}
-		else if (type()) {
-			if (lookahead == SEMICOLON) {
-				variable();		
-			}
-			else if (lookahead == LPARENS) {
-				procedure();
-			}
-		}
-		else {
-			syntaxError(E_VARIABLEORPOCEDURE);
+
+	have_asterisk = 0;
+	if (symbol == ASTERISK) {
+		have_asterisk = 1;
+	}
+
+	if (symbol == VOID) {
+		getCurrentSymbol();
+		if (symbol == ASTERISK) {
 			getCurrentSymbol();
 		}
+		debug(E_VOID);
+		procedure(have_asterisk);
+	}
+	else if (type()) {
+		if (lookahead == SEMICOLON) {
+			variable(have_asterisk);		
+		}
+		else if (lookahead == LPARENS) {
+			procedure(have_asterisk);
+		}
+	}
+	else {
+		syntaxError(E_VARIABLEORPOCEDURE);
+		getCurrentSymbol();
 	}
 }
 
@@ -302,6 +342,8 @@ void declaration() {
 	type();
 	debug(E_DECLARATION);
 	if (symbol == IDENTIFIER) {
+		createSymbolTableEntry(0);
+		dump_symbol_table(symbolTable);
 		getCurrentSymbol();
 	}
 	else {
@@ -310,9 +352,11 @@ void declaration() {
 }
 
 // global var
-void variable() {
+void variable(int have_asterisk) {
 	debug(E_VARIABLE);
 	if (symbol == IDENTIFIER) {
+		createSymbolTableEntry(0);
+		dump_symbol_table(symbolTable);
 		getCurrentSymbol();
 		if (symbol == SEMICOLON) {
 			getCurrentSymbol();
@@ -644,7 +688,7 @@ void whileStatement() {
         getCurrentSymbol();
         
         //branchInstruction = expression(); // EDIT
-	   branchInstruction = relation_expression();	
+	    branchInstruction = relation_expression();	
 		
         // remember address of next instruction which
         // conditionally branches forward to end of while
@@ -885,7 +929,7 @@ void call() {
 
 //Procedure definitions are next. Here the construction of the local symbol table containing the parameters and local variables of a procedure is still to be done as part of an assignment. Also, the access of parameters and local variables still needs to be implemented (in factor and assignment).
 
-void procedure() {
+void procedure(int have_asterisk) {
 	debug(E_PROCEDURE);
     // assert: allocatedRegisters == 0
 
@@ -894,22 +938,32 @@ void procedure() {
     int parameters;
     int localVariables;
 
-  //  if (symbol == INTEGER) {
-  //      getCurrentSymbol();
-  //
-  //      if (symbol == ASTERISK) {
-  //          getCurrentSymbol();
-  //      }
-  //  } 
-  //  else if (symbol == VOID) {
-  //      getCurrentSymbol();
-  //  }
-  //  else {
-  //      syntaxError(PROCEDURE); // int expected!
-  //  }
+	int *global_symbol_table;
+
+	// back up start of global symbol table so appending shit adds to the local part
+	global_symbol_table = 0; // not yet, only after symbol of the procedure itself is added
+
+	//  if (symbol == INTEGER) {
+	//      getCurrentSymbol();
+	//
+	//      if (symbol == ASTERISK) {
+	//          getCurrentSymbol();
+	//      }
+	//  } 
+	//  else if (symbol == VOID) {
+	//      getCurrentSymbol();
+	//  }
+	//  else {
+	//      syntaxError(PROCEDURE); // int expected!
+	//  }
 
 	if (symbol == IDENTIFIER) {
        // callBranches = setProcedureAddress();
+		createSymbolTableEntry(0);
+		global_symbol_table = symbolTable;
+
+		dump_symbol_table(symbolTable);
+
 		getCurrentSymbol();
 		
 
@@ -1029,6 +1083,11 @@ void procedure() {
         syntaxError(E_PROCEDURE); // identifier expected!
     }
 
+	// restore previous symbol table state
+	if(global_symbol_table != 0 ) {
+		symbolTable = global_symbol_table;
+	}
+
     // assert: allocatedRegisters == 0
 }
 
@@ -1129,3 +1188,9 @@ void returnStatement() {
 //variableORprocedure = ( "void" | type ) LOOKAHEAD -> ( ";" variable | "(" procedure) .
 
 //cstar = { variableORprocedure } .
+
+
+
+
+
+
