@@ -662,7 +662,7 @@ void dump_symbol_table(int *symbolTableCursor) {
 	while(symbolTableCursor != 0) {
 		//print_symbol_table_entry(symbolTableCursor);
 
-		printf("\t%d: '%ls'\n", symbolTableCursor, symbolTableCursor[1]);
+		printf("\t%d: '%lsgi'\n", symbolTableCursor, symbolTableCursor[1]);
 
 		// cast only works if size of int and int* is equivalent
 		symbolTableCursor = (int*) *symbolTableCursor;
