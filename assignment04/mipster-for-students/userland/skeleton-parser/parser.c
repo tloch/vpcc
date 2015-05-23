@@ -1384,10 +1384,9 @@ int isSymbolAsteriskOrSlash() {
 	if (symbol == ASTERISK) {
 		return 1;
 	}
-	// not scanned yet!
-	//if (symbol == SLASH) {
-	//	return 1;
-	//}
+	if (symbol == SLASH) {
+		return 1;
+	}
 	return 0;
 }
 
