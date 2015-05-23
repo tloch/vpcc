@@ -172,6 +172,7 @@ class InstructionDecoder {
   V(0xFC1FFFFF, 0x00000013, R, MoveToLORegisterInstruction, false)             \
   V(0xFC00FFFF, 0x00000019, R, MultiplyUnsignedWordInstruction, false)         \
   V(0xFC00FFFF, 0x00000018, R, MultiplyWordInstruction, false)                 \
+  V(0xFC0007FF, 0x70000002, R, MultiplyToGPRInstruction, false)                  \
   V(0xFFFFFFFF, 0x00000000, R, NoOperationInstruction, false)                  \
   V(0xFC0007FF, 0x00000027, R, NotOrInstruction, false)                        \
   V(0xFC0007FF, 0x00000025, R, OrInstruction, false)                           \
@@ -189,6 +190,12 @@ class InstructionDecoder {
   V(0xFC0007FF, 0x00000022, R, SubtractWordInstruction, false)                 \
   V(0xFC00003F, 0x0000000C, R, SystemcallInstruction, false)
 
+/*
+  V(0xFC0007FF, 0x70000002, R, MultiplyWordInstruction, false)                 
+
+  V(0xFC00FFFF, 0x00000019, R, MultiplyUnsignedWordInstruction, false)         
+  V(0xFC00FFFF, 0x00000018, R, MultiplyWordInstruction, false)                 
+*/
 #define FOR_ALL_J_TYPE_INSTRUCTIONS(V)                                         \
   V(0xFC000000, 0x0C000000, J, JumpAndLinkInstruction, true)                   \
   V(0xFC000000, 0x08000000, J, JumpInstruction, true)
@@ -213,6 +220,14 @@ class NAME : public FixedFormatInstruction<TYPE##Type> {                       \
                                                                                \
   void Execute();                                                              \
 };
+
+/*
+
+printf("\e[92m" "%08X & %08X == %08X" "\e[0m" "\n", raw, PATTERN_BITS, VALUE_BITS); \
+
+printf("\e[31m" "%08X & %08X (= %08X) != %08X" "\e[0m" "\n", raw, PATTERN_BITS, raw & PATTERN_BITS, VALUE_BITS); \
+
+*/
 
 FOR_ALL_INSTRUCTIONS(DECLARE_INSTRUCTION)
 #undef DECLARE_INSTRUCTION

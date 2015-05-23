@@ -377,6 +377,24 @@ void MultiplyWordInstruction::Execute() {
       Register::BitfieldIndexFor(InstructionData().rt));
 }
 
+void MultiplyToGPRInstruction::Execute() {
+  Disassemble("mul %s,%s,%s",
+              Register::Name(InstructionData().rd),
+              Register::Name(InstructionData().rs),
+              Register::Name(InstructionData().rt));
+  int64_t temp =
+      static_cast<int64_t>(MachineState().registers.GPR[InstructionData().rs]) *
+      static_cast<int64_t>(MachineState().registers.GPR[InstructionData().rt]);
+/*
+  if (!InInt32Range(temp)) {
+    OS::Get().ExceptionHandler(kInterOverflow);
+    UNREACHABLE();
+  }
+*/
+  WriteRegister(InstructionData().rd, static_cast<int32_t>(temp));
+  NextInstruction();
+}
+
 
 void MoveFromLORegisterInstruction::Execute() {
   Disassemble("mflo %s", Register::Name(InstructionData().rd));

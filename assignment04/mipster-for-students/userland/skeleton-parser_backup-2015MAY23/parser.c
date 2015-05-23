@@ -17,7 +17,6 @@ void whileStatement();
 void ifStatement();
 void returnStatement();
 void fixup(int codeAddress);
-void setParameterCInCode(int codeAdress, int value);
 void call();
 int setProcedureAddress();
 void procedure(int have_asterisk);
@@ -58,26 +57,15 @@ int ADDI;
 int SUBI;
 
 int LDW;
-int SW;
 
 int HLT;
 
-int SLT;	// rd ← (rs < rt) 1 true, 0 false
-int BEQ;	// branch on equal
-int BGEZ; // branch on greater or equal to zero
-int BGTZ;	 // greater zero
-int BLEZ;  // less or equal zero
-int BLTZ;  // less zero
-int BNE;	  // not equal
 int BSR;
-int BR;	// same as BEQ, but without parameter
+int BR;
 int RET;
 
 int PSH;
 int POP;
-
-int NOP;
-int BREAK;
 //...
 
 // start pointer of global symbol table's linked list.
@@ -94,17 +82,6 @@ int symbol;
 
 // lookahead of one
 int lookahead;
-
-void printCodeArray() {
-	int *codecursor = code;
-	int i = 0;
-	
-	while (i < codeLength) {
-		printf("%d CODEARRAY: %d\n",i, *codecursor);
-		codecursor = codecursor +1;
-		i = i +1;
-	}
-}
 
 // ERROR 
 void syntaxError(int errorcode) {
@@ -144,135 +121,6 @@ void initParser() {
 	lookahead = getSymbol();	
 }
 
-void emitCode(int op, int a, int b, int c) {
-
-	int *codecursor;
-	int instruction = 0;
-	
-	codecursor = code;
-	codecursor = codecursor + codeLength;
-
-	instruction = encodeInstruction(op, a, b, c);
-	
-	//printf("CODE WORD: %d %d %d %d \n", op, a, b, c);
-	
-	*codecursor = instruction;
-	codeLength = codeLength + 1;
-}
-
-// calculates 2^x
-int m_pow(int times) {
-
-	int i = 0;
-	int pow = 2;
-	
-	while (i < times -1) {
-		pow = pow * 2;
-		i = i + 1;
-	}
-	return pow;
-}
-
-// convert negative integer to two's complement
-int twos(int x, int bit) {
-
-	int max_16bit = 65535;
-	int max_26bit = 67108863; 
-	int twos_corr = 1;
-	
-	if (x < 0) {
-		if (bit == 16)
-			x = max_16bit + x + twos_corr;
-		else if (bit == 26)
-			x = max_26bit + x + twos_corr;
-	}
-	return x;
-}
-
-int encodeInstruction(int op, int a, int b, int c) {
-	
-	// 0x80000000, to fix integer overflow
-	int sign_bit = -2147483648;
-	
-	int unsigned_instuction = 0;
-	int encoded_instruction = 0;
-
-	if (op == ADD) {
-		encoded_instruction = (b * m_pow(21)) + (c * m_pow(16)) + (a * m_pow(11)) + (0 * m_pow(6)) + op; 
-	}
-	else if (op == SUB) {
-		encoded_instruction = (b * m_pow(21)) + (c * m_pow(16)) + (a * m_pow(11)) + (0 * m_pow(6)) + op;
-	}
-	else if (op == MUL) {
-		encoded_instruction = (op * m_pow(26)) + (b * m_pow(21)) + (c * m_pow(16)) + (a * m_pow(11)) + (0 * m_pow(6)) + 2;
-	}
-	else if (op == ADDI) {
-		c = twos(c, 16);
-		encoded_instruction = (op * m_pow(26)) + (b * m_pow(21)) + (a * m_pow(16)) + c;
-	}
-	// SW var[reg], base[reg], offset
-	else if (op == SW) {
-	
-		// fix parameter c 
-		c = twos(c, 16);
-		
-		// remove sign bit 
-		unsigned_instuction = (op - m_pow(5)) * m_pow(26) + b * m_pow(21) + a * m_pow(16) + c;
-		
-		// add sign bit to unsigned instruction, fix overflow
-		encoded_instruction = sign_bit + unsigned_instuction;
-	}
-	else if (op == LDW) {
-		c = twos(c, 16);		
-		unsigned_instuction = (op - m_pow(5)) * m_pow(26) + b * m_pow(21) + a * m_pow(16) + c;
-		encoded_instruction = sign_bit + unsigned_instuction;
-	}
-	else if (op == SLT) {
-		c = twos(c, 16);		
-		encoded_instruction = 0 * m_pow(26) + b * m_pow(21) + c * m_pow(16) + a * m_pow(11) + 0 * m_pow(6) + op;
-	}
-	else if (op == BR) {
-		op = 4;
-		c = twos(c, 16);		
-		encoded_instruction = op * m_pow(26) + 0 * m_pow(21) + 0 * m_pow(16) + c;
-	}
-	else if (op == BEQ) {
-		c = twos(c, 16);
-		encoded_instruction = (op * m_pow(26)) + (a * m_pow(21)) + (b * m_pow(16)) + c;
-	}
-	else if (op == BGEZ) {
-		c = twos(c, 16);
-		encoded_instruction = (1 * m_pow(26)) + (a * m_pow(21)) + (op * m_pow(16)) + c;
-	}
-	else if (op == BGTZ) {
-		c = twos(c, 16);
-		encoded_instruction = (op * m_pow(26)) + (a * m_pow(21)) + (0 * m_pow(16)) + c;
-	}
-	else if (op == BLTZ) {		// not working, dont know why
-		c = twos(c, 16);
-		encoded_instruction = (1 * m_pow(26)) + (a * m_pow(21)) + (op * m_pow(16)) + c;
-	}
-	else if (op == BLEZ) {
-		c = twos(c, 16);
-		encoded_instruction = (op * m_pow(26)) + (a * m_pow(21)) + (0 * m_pow(16)) + c;
-	}
-	else if (op == BNE) {
-		c = twos(c, 16);
-		encoded_instruction = (op * m_pow(26)) + (a * m_pow(21)) + (b * m_pow(16)) + c;
-	}
-	else if (op == NOP) {
-		encoded_instruction = 0;
-	}
-	else if (op == BREAK) {
-		encoded_instruction = op;
-	}
-	else {
-		printf("[ERROR] unknown opcode\n");
-	}
-
-	return encoded_instruction;
-}
-
 void emitExit() {
     int* identifierCursor;
 
@@ -302,7 +150,6 @@ void emitExit() {
 }
 
 int main() {
-	
     // pick some maximum identifier length, e.g. 42 characters
     maxIdentifierLength = 42;
 
@@ -317,24 +164,10 @@ int main() {
 
     allocatedRegisters = 0;
     allocatedGlobalVariables = 0;
-    allocatedLocalVariables = -1;
+	allocatedLocalVariables = -1;
 
-    ADD = 32; // opcode for ADD
-    SUB = 34; // opcode for SUB
-    MUL = 28;
-    SW = 43;
-    ADDI = 8;
-    LDW = 35;
-    SLT = 42;
-    BGEZ = 1;
-    BGTZ = 7;
-    BLEZ = 6;
-    BLTZ = 0;
-    BNE = 5;
-    BEQ = 4;
-    BR = 99;	// own opcode for mapping
-    NOP = 98;	// same
-    BREAK = 13;
+    ADD = 7; // opcode for ADD
+    SUB = 8; // opcode for SUB
     //...
 
     symbolTable = 0;
@@ -372,37 +205,13 @@ int main() {
 
     // get first symbol from scanner
     getCurrentSymbol();
-     
-    // set GP
-    emitCode(ADDI, GP, ZR, 26928);
-    
+
     // invoke compiler
     cstar();
 
-    // stop code execution
-   	
-     emitCode(BREAK, 0, 0, 0);
-     
-     printf("CODE Length %d\n", codeLength);
-	printCodeArray();
-	
     // write code to standard output
-    // writeBinary();
-  
-    char* name = "foo";
-    char* argstring = "--help --me";
-  
-    mipster_create_process_args_t args;
-    args.code_addr = (int)code;
-    args.code_size = 4 * codeLength;
-    args.entry_point = 0; //offset in code array
-    args.name_addr = (int)name;
-    args.name_size = 4; // foo\0
-    args.arguments_addr = (int)argstring;
-    args.arguments_size = 12;
-	  
-    mipster_create_process(args);
-	 
+    //writeBinary();
+
     return 0;
 }
 //-----------------------------
@@ -481,6 +290,17 @@ int identifierMatch(int* symbolTableIdentifier) {
 		}
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 //-----------------------------
@@ -625,17 +445,10 @@ void assignment() {
 		getCurrentSymbol();
 	}
 	if (symbol == IDENTIFIER) {
-	
-		int *tmp = getSymbolTableEntry();
-				
 		getCurrentSymbol();
 		if (symbol == ASSIGN) {
 			getCurrentSymbol();
 			expression();
-			
-			emitCode(SW, allocatedRegisters, GP, tmp[2]);
-			
-			allocatedRegisters = allocatedRegisters -1;
 		}
 	}
 	else {
@@ -646,48 +459,34 @@ void assignment() {
 int relation_expression() {
 	debug(E_RELATION_EXPRESSION);
 	
-	int cmp_symbol = 0;
-	
 	expression();
-	
+	// TODO add LT GT
 	if (symbol == EQUAL) {
-		cmp_symbol = BNE;
 		getCurrentSymbol();
 		expression();
 	}
 	else if (symbol == NOTEQ) {
-		cmp_symbol = BEQ;
 		getCurrentSymbol();
 		expression();
 	}
 	else if (symbol == GT) {
-		cmp_symbol = BGEZ;
 		getCurrentSymbol();
 		expression();
 	}
 	else if (symbol == GTEQ) {
-		cmp_symbol = BGTZ;
 		getCurrentSymbol();
 		expression();
 	}
-	else if (symbol == LT) { 
-		cmp_symbol = BLEZ;
+	else if (symbol == LT) {
 		getCurrentSymbol();
 		expression();
 	}
-	else if (symbol == LTEQ) { 
-		cmp_symbol = BLTZ;
+	else if (symbol == LTEQ) {
 		getCurrentSymbol();
 		expression();
-	}
-	else {	// no comparison
-		cmp_symbol = BR;
 	}
 	
-	emitCode(SLT, allocatedRegisters - 1, allocatedRegisters - 1, allocatedRegisters);	
-	allocatedRegisters = allocatedRegisters - 1;
-	
-	return cmp_symbol;
+	return 0;
 }
 
 int expression() {
@@ -714,7 +513,7 @@ int expression() {
     // assert: allocatedRegisters == n + 1
 
     if (sign) {
-        emitCode(SUB, allocatedRegisters, ZR, allocatedRegisters);
+        //emitCode(SUB, allocatedRegisters, ZR, allocatedRegisters);
     }
 
     while (isSymbolPlusOrMinus()) {
@@ -724,10 +523,10 @@ int expression() {
         term();
 
         if (operatorSymbol == PLUS) {
-            emitCode(ADD, allocatedRegisters - 1, allocatedRegisters - 1, allocatedRegisters);
+            //emitCode(ADD, allocatedRegisters - 1, allocatedRegisters - 1, allocatedRegisters);
         }
         else {
-            emitCode(SUB, allocatedRegisters - 1, allocatedRegisters - 1, allocatedRegisters);
+            ////emitCode(SUB, allocatedRegisters - 1, allocatedRegisters - 1, allocatedRegisters);
 		}
 
         allocatedRegisters = allocatedRegisters - 1;
@@ -815,16 +614,15 @@ void factor() {
     	   // variable
     	   else {
 		   allocatedRegisters = allocatedRegisters + 1;
-		   
-		   emitCode(LDW, allocatedRegisters, GP, getGlobalVariableOffset());
-		   
+
+		   //emitCode(LDW, allocatedRegisters, GP, getGlobalVariableOffset());
 		   getCurrentSymbol();
         }
     } 
     else if (symbol == INTEGER) {
         allocatedRegisters = allocatedRegisters + 1;
-        
-        emitCode(ADDI, allocatedRegisters, ZR, integer);
+
+        //emitCode(ADDI, allocatedRegisters, ZR, integer);
 
         getCurrentSymbol();
     } 
@@ -905,7 +703,7 @@ void whileStatement() {
     int branchInstruction;
 
     // remember address of next instruction to loop back to below
-    branchBackwardsToWhile = codeLength -1;
+    branchBackwardsToWhile = codeLength;
 
     if (symbol == WHILE) {
         getCurrentSymbol();
@@ -922,7 +720,7 @@ void whileStatement() {
         getCurrentSymbol();
         
         //branchInstruction = expression(); // EDIT
-	   branchInstruction = relation_expression();	
+	    branchInstruction = relation_expression();	
 		
         // remember address of next instruction which
         // conditionally branches forward to end of while
@@ -932,13 +730,10 @@ void whileStatement() {
         // assert: allocatedRegisters == 1
 
         // target address unknown, so just say 0 here, fixup is done below
- 	   
-        emitCode(branchInstruction, allocatedRegisters, 0, 0);
-        emitCode(NOP,0,0,0);
-
+        //emit(branchInstruction, allocatedRegisters, 0, 0);
 
         // do not need the register for comparison anymore
-        allocatedRegisters = allocatedRegisters - 1;		// -1 correction, dont know why TODO
+        allocatedRegisters = allocatedRegisters - 1;
 
         if (symbol == RPARENS) {
             getCurrentSymbol();
@@ -967,16 +762,11 @@ void whileStatement() {
     // assert: allocatedRegisters == 0
 
     // unconditional branch backwards to while
-    emitCode(BR, 0, 0, branchBackwardsToWhile - codeLength);
-    emitCode(NOP,0,0,0);
+    //emit(BR, 0, 0, branchBackwardsToWhile - codeLength);
 
     // here will be the first instruction after the loop
     // so point the conditional branch instruction from above here
-   
     fixup(branchForwardToEndOfWhile);
-    
-    emitCode(NOP,0,0,0);			// dont know why TODO
-    emitCode(NOP,0,0,0);
 }
 
 void ifStatement() {
@@ -1036,17 +826,10 @@ void ifStatement() {
 }
 
 void fixup(int codeAddress) {
-	// assert: -2^15 <= codeLength - codeAddress <= 2^15 - 1
+    // assert: -2^15 <= codeLength - codeAddress <= 2^15 - 1
 
-	// branch from instruction at codeAddress to instruction at codeLength
-	setParameterCInCode(codeAddress, codeLength - codeAddress);
-}
-
-void setParameterCInCode(int codeAdress, int value) {
-	int *codecursor;
-	
-	codecursor = code + codeAdress;
-	*codecursor = *codecursor + value;
+    // branch from instruction at codeAddress to instruction at codeLength
+   // setParameterCInCode(codeAddress, codeLength - codeAddress);
 }
 //-----------------------------
 
@@ -1399,7 +1182,7 @@ int isSymbolAsteriskOrSlash() {
 void fixlink(int codeAddress) {
     int previousCodeAddress;
 
-    while (codeAddress != 0) {	// TODO codeAdress is 0 too when theres a emitCode(NOP,0,0,0)
+    while (codeAddress != 0) {
         //previousCodeAddress = getParameterCFromCode(codeAddress);
 
         fixup(codeAddress);
@@ -1447,7 +1230,7 @@ void returnStatement() {
 
 //type = "int" [ "*" ] .
 
-//relation_expression = expression [ ( "<=" | "==" | ">=" | "<" | ">"  | "!=" ) expression ]                        
+//relation_expression = expression [ ( "<=" | "==" | ">=" | "!=" ) expression ]                        
 //expression = simpleExpression [ ( "==" | "!=" | "<" | ">" | "<=" | ">=" ) simpleExpression ] .
 //simpleExpression = [ "-" ] term { ( "+" | "-" ) term } .
 //term = factor { ( "*" | "/" | "%" ) factor } .

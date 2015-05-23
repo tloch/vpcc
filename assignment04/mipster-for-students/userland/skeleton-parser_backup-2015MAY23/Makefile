@@ -10,7 +10,7 @@ OBJECTS += \
     scanner.o \
     parser.o \
     $(LIBC_PATH)/mipster.a
-CFLAGS += -nostdlib -I$(LIBC_PATH) -g
+CFLAGS += -nostdlib -I$(LIBC_PATH)
 LDFLAGS += -nostdlib
 BINARY=a.out
 

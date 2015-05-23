@@ -130,7 +130,7 @@ int getSymbol() {
 	int token;
 
 	token = getSymbol2();
-	//printf("[SCANNER] %d: ", lineNR); print_token(token);
+	printf("[SCANNER] %d: ", lineNR); print_token(token);
 
 	return token;
 }
