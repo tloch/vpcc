@@ -899,8 +899,8 @@ int expression() {
     // must be local variable to work for nested expressions
     int operatorSymbol;
 
-	int type1;
-	int type2;
+	int type_prev;
+	int type_curr;
 
 
     if (symbol == MINUS) {
@@ -912,7 +912,7 @@ int expression() {
 
 	operating_on_pointer = 0;
     term();
-	type1 = operating_on_pointer;
+	type_prev = operating_on_pointer;
 
     // assert: allocatedRegisters == n + 1
 
@@ -926,12 +926,26 @@ int expression() {
 
 		operating_on_pointer = 0;
         term();
-		type2 = operating_on_pointer;
+		type_curr = operating_on_pointer;
 
-		if(type1 == 1) {
-			// temporarily allocate one new register to hold the constant (because there is no MULI
-		    emitCode(ADDI, allocatedRegisters + 1, ZR, 4);
-	            emitCode(MUL, allocatedRegisters, allocatedRegisters, allocatedRegisters + 1);
+		if(type_prev == 1) {
+			if(type_curr == 1) {
+				// current and previous are pointers - do nothing
+			} else {
+				// previous is pointer - multiply current
+				// temporarily allocate one new register to hold the constant (because there is no MULI)
+				    emitCode(ADDI, allocatedRegisters + 1, ZR, 4);
+	        		    emitCode(MUL, allocatedRegisters, allocatedRegisters, allocatedRegisters + 1);
+			}
+		} else {
+			if(type_curr == 1) {
+				// current is pointers - multiply previous
+				// temporarily allocate one new register to hold the constant (because there is no MULI)
+				    emitCode(ADDI, allocatedRegisters + 1, ZR, 4);
+	        		    emitCode(MUL, allocatedRegisters-1, allocatedRegisters-1, allocatedRegisters + 1);
+			} else {
+				// no pointers involved - do nothing
+			}
 		}
 
         if (operatorSymbol == PLUS) {

@@ -48,7 +48,7 @@ int main () {
 		if (*cdata > max) {
 			max = *cdata;
 		}
-		cdata = cdata + 1;		// move cursor by 1 element (4 bytes)
+		cdata = 1 + cdata;		// move cursor by 1 element (4 bytes)
 		i = i + 1;
 	}
 
