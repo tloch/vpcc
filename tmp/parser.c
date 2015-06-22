@@ -948,6 +948,8 @@ int expression() {
 			}
 		}
 
+		type_prev = type_curr;
+
         if (operatorSymbol == PLUS) {
             emitCode(ADD, allocatedRegisters - 1, allocatedRegisters - 1, allocatedRegisters);
         }
