@@ -928,7 +928,7 @@ int expression() {
         term();
 		type2 = operating_on_pointer;
 
-		if(type2 == 1) {
+		if(type1 == 1) {
 			// temporarily allocate one new register to hold the constant (because there is no MULI
 		    emitCode(ADDI, allocatedRegisters + 1, ZR, 4);
 	            emitCode(MUL, allocatedRegisters, allocatedRegisters, allocatedRegisters + 1);
