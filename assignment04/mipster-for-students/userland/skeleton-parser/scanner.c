@@ -622,6 +622,25 @@ int print_int(int i) {
 	return 0;
 }
 
+char *hexdigits = "0123456789abcdef";
+int print_hex(int x) {
+	unsigned int y = x;
+	int pos = 0; // index of next free position in buffer
+	int buffer[16];
+
+	for(pos = 0; pos < 8; pos++) {
+		buffer[pos] = hexdigits[y % 16];
+		y /= 16;
+	}
+
+	while(pos > 0) {
+		pos--;
+		putchar(buffer[pos]);
+	}
+
+	return 0;
+}
+
 int printf(char *fmt, ...) {
 	va_list ap;
 	char *f;
@@ -674,6 +693,10 @@ int printf(char *fmt, ...) {
 		case 'd':
 			i = va_arg(ap, int);
 			print_int(i);
+			break;
+		case 'x':
+			i = va_arg(ap, int);
+			print_hex(i);
 			break;
 		default:
 			putchar('%');

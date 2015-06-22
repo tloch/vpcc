@@ -100,9 +100,9 @@ void printCodeArray() {
 	int i = 0;
 	
 	while (i < codeLength) {
-		printf("%d CODEARRAY: %d\n",i, *codecursor);
-		codecursor = codecursor +1;
-		i = i +1;
+		printf("%d CODEARRAY: %x\n", i, *codecursor);
+		codecursor = codecursor + 1;
+		i = i + 1;
 	}
 }
 
@@ -166,7 +166,7 @@ int m_pow(int times) {
 	int i = 0;
 	int pow = 2;
 	
-	while (i < times -1) {
+	while (i < times - 1) {
 		pow = pow * 2;
 		i = i + 1;
 	}
@@ -384,7 +384,7 @@ int main() {
      emitCode(BREAK, 0, 0, 0);
      
      printf("CODE Length %d\n", codeLength);
-	printCodeArray();
+	//printCodeArray();
 	
     // write code to standard output
     // writeBinary();
